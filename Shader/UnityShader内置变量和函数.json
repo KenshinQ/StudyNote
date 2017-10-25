@@ -1,0 +1,65 @@
+[
+	{
+		"名称":"_LightColor0",
+		"类型":"float4",
+		"说明":"逐像素光源的颜色"
+	},
+	{
+		"名称":"_WorldSpaceLightPos0",
+		"类型":"float4",
+		"说明":"_WorldSpaceLightPos0.xyz是逐像素光源的位置，如果光源是平行光，则_WorldSpaceLightPos0.w是0，其他光源则w分量为1"
+	},
+	{
+		"名称":"_LightMartrix0",
+		"类型":"float4x4",
+		"说明":"从世界空间到光源空间的变换矩阵。可以用于采样cookie和光强衰减纹理"
+	},
+	{
+		"名称":"unity_4LightPosX0",
+		"类型":"float4",
+		"说明":"仅用于Base Pass，表示前4个非重要的点光源在世界空间中的x坐标"
+	},
+	{
+		"名称":"unity_4LightPosY0",
+		"类型":"float4",
+		"说明":"仅用于Base Pass，表示前4个非重要的点光源在世界空间中的y坐标"
+	},
+	{
+		"名称":"unity_4LightPosZ0",
+		"类型":"float4",
+		"说明":"仅用于Base Pass，表示前4个非重要的点光源在世界空间中的z坐标"
+	},
+	{
+		"名称":"unity_4LightAtten0",
+		"类型":"float4",
+		"说明":"仅用于Base Pass,存储了前4个非重要的点光源的衰减因子"
+	},
+	{
+		"名称":"unity_LightColor",
+		"类型":"half4[4]",
+		"说明":"仅用于Base Pass,存储了前4个非重要的点光源的颜色"
+	},
+	{
+		"名称":"float3 WorldSpaceLightDir(float4 v)",
+		"类型":"",
+		"说明":"仅可用于前向渲染中，输入一个模型空间中的顶点位置，返回世界空间从该顶点到光源的光照方向，未被归一化"
+	},
+	{
+		"名称":"float3 UnityWorldSpaceLightDir(float4 v)",
+		"类型":"",
+		"说明":"仅可以用于前向渲染中，输入一个世界空间中的顶点位置，返回世界空间从该顶点到光源的光照方向，未被归一化"
+	},
+	{
+		"名称":"float3 ObjSpaceLightDir(float4 v)",
+		"类型":"",
+		"说明":"仅可用于前向渲染中，输入一个模型空间中的顶点位置，返回模型空间从该顶点到光源的光照方向，未被归一化"
+	},
+	{
+		"名称":"float3 Shade3PointLights(...)",
+		"类型":"",
+		"说明":"仅可用于前向渲染中，用于计算四个点光源的光照，它的参数是已经打包进矢量的点光源光照数据，
+				如unity_4LightPosX0,unity_4LightPosY0,unity_4LightPosZ0,unity_LightColor,unity_4LightAtten0等
+				前向渲染通常会用这个函数来计算逐顶点光照"
+	}
+
+]
