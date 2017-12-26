@@ -55,5 +55,6 @@ Entitas是用C#实现的，为Unity引擎设计的快速而轻量级的ECS框架
   - ITearDownSystem接口：有TearDown方法，逻辑世界要关闭时，可以实现这个接口，并在TearDown方法中完成最后的清理工作。
   - ReactiveSystem:用于当关注的特定类Entity发生变化时，进行处理，也是在每帧执行Execute方法，不过，只有在当前帧和前一帧之间Entity发生了变化，Execute才会被执行。
     
+* Feature:系统的容器，用于把系统划分组织成不同的单元，作为世界中一个个的特性。这样我们可以根据实际需要选择在哪个Update中调度执行系统。
 * Entity
 * Component
