@@ -44,17 +44,23 @@ Entitas是用C#实现的，为Unity引擎设计的快速而轻量级的ECS框架
 3. 提供代码生成器，减少手写的代码量。
 ##### Entitas使用简要指南
 * Context：管理器。所有Entity、Component和System都必须通过Context进行创建，然后Context对它们进行管理。允许有多个Context存在，一般一个Context代表一个逻辑世界。
-* Group：Entity的管理组。用来加速具有某一个Component组合的Entity查询，Group会根据Entity拥有的Component，及时更新其中的Entity。
+* Group：Entity的管理组。用来加速具有某一个Component组合的Entity查询，Group会根据Entity拥有的Component，及时更新其中的Entity。Group有OnEntityAdded、OnEntityRemoved、OnEntityUpdated三个事件可以订阅，Group会在适当的时候通知观察者。
 * Matcher：Entitas定义的一个小的特定领域语言，用来描述具有某一特定Component组合的Entity的查询条件，从而可以从Context中查询得到满足条件的Group。
-* Collector：Entity收集器。用于监测具有某组Component的Group中Entity的增删的变化。
+* Collector：Entity收集器。用于监测具有某组Component的Group中Entity的变化事件。需要注意的是，如果收集器订阅的是Removed事件，然后Removed事件触发Entity被收集之后，这个Entity又加上了同一个组件，那么这个Entity又会被加回到Group中，但是这个Entity依旧在收集器中，所以Collector有一个Filter方法，用来确认Entity是否要过滤掉。
 * Index：索引，可以通过给组件中的数据加上某种Index标签，就可以在查询Entity的时候，指定特定的值来过滤掉不必要的Entity。因为Entitas内部实现会用加了Index标签的数据的值为Entity建一张索引表。
 * System：
   - IExecuteSystem:只有一个Execute方法，每帧都会执行这个方法
-  - ICleanupEystem:只有一个Cleanup方法，周期性的执行方法，这个系统在所有IExecuteSystem之后执行，              用于清理工作。
-  - InitializeSystem接口：有Initialize方法，游戏初始化的工作可以通过实现这个接口，在Initialize方法中完成。
+  - ICleanupEystem:只有一个Cleanup方法，周期性的执行方法，这个系统在所有IExecuteSystem之后执行,用于清理工作。
+  - InitializeSystem接口：有Initialize方法,只执行一次，游戏初始化的工作可以在Initialize方法中完成。
   - ITearDownSystem接口：有TearDown方法，逻辑世界要关闭时，可以实现这个接口，并在TearDown方法中完成最后的清理工作。
   - ReactiveSystem:用于当关注的特定类Entity发生变化时，进行处理，也是在每帧执行Execute方法，不过，只有在当前帧和前一帧之间Entity发生了变化，Execute才会被执行。
     
 * Feature:系统的容器，用于把系统划分组织成不同的单元，作为世界中一个个的特性。这样我们可以根据实际需要选择在哪个Update中调度执行系统。
+* Attribute:特性标签
+  - *ContextName*:Context标签，用来标识Component属于哪个上下文管理器。一种Component允许属于多个Context。
+  - *Unique*:唯一标签，用来标识Component，表示拥有这种Component的Entity只能存在一个。对于有些状态数据，只会有一份。
+  - *UniquePrefix("prefixName")*:只能用来标记空组件，用来改变空组件对于布尔值属性名的前缀，默认前缀是"is"。
+  - *CustomComponentName("Name1,Name2,...")*:这个标签可以用于一次性生成多个拥有同样成员的组件。而不需要去分别定义不同的组件文件，减少多余的编码量。
+  - *DontGenerate*:这个标签用于告诉代码生成器，不用为这个组件生成相关代码。
+* Component:含有状态数据的组件。根据组件中是否有定义成员，分两种不同的组件。没有定义成员的Component，也就是空组件，属于标记类组件，它们会变成Entity的布尔值属性；另一类就是有定义成员的Component，属于普通的Component。
 * Entity
-* Component
