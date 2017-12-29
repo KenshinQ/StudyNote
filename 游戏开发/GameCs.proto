@@ -1,0 +1,2227 @@
+// Protocol Buffers - Google's data interchange format
+// Copyright 2008 Google Inc.  All rights reserved.
+// https://developers.google.com/protocol-buffers/
+//
+
+
+
+syntax = "proto3";
+
+package google.protobuf;
+
+//import "LobbyComm.proto";
+//import "GameComm.proto";
+
+option csharp_namespace = "Google.Protobuf.WellKnownTypes";
+option go_package = "github.com/golang/protobuf/ptypes/struct;structpb";
+option java_package = "com.google.protobuf";
+option java_outer_classname = "StructProto";
+option java_multiple_files = true;
+option java_generate_equals_and_hash = true;
+option objc_class_prefix = "GPB";
+
+
+
+//Lobby的消息ID从1~1000
+enum CSMsgID {
+	CS_MSGID_NONE = 0;
+	CS_MSGID_ACCOUNT_REQ = 11;
+	CS_MSGID_ACCOUNT_RES = 12; 
+
+	CS_MSGID_GAME_LIST_REQ = 13;
+	CS_MSGID_GAME_LIST_RES = 14;
+
+	CS_MSGID_PING = 15;
+	CS_MSGID_VERSION_REQ = 17;
+	CS_MSGID_VERSION_RES = 18;
+
+	CS_MSGID_BIND_GUEST_FACEBOOK_REQ = 201;
+	CS_MSGID_BIND_GUEST_FACEBOOK_RES = 202;
+	CS_MSGID_UNBIND_GUEST_FACEBOOK_REQ = 203;
+	CS_MSGID_UNBIND_GUEST_FACEBOOK_RES = 204;
+}
+
+
+
+//
+//message MsgHeader {
+//  fixed16 msgLength = 1;
+//  fixed16 msgType = 1;
+//}
+
+message AccountInfo {
+	
+	int32 accountType = 1; //
+	string accountID = 2;
+	string accountToken = 3;
+	int32 platformType = 4; // 1 android 2 ios 3 windows
+}
+
+message VersionInfo {
+	// en,comm
+	string language = 1; //en ,tk,comm
+	//ios,android,win
+	string os = 2;
+	//1.2.1.34
+	string appVersion = 3;
+	string osLanguage = 4; //操作系统语言
+}
+
+// 游戏服务器上报给lobby服务器信息，包括名字，在线人数，连接服务器的ip地址，端口
+// 客户端拉取游戏列表信息
+message GameInfo {
+  string gameName = 1;
+  int32 onlinePlayer = 2;
+  string gateUrl = 3; //其实是ip,后期版本可以改成url，但是需要玩家的包基本都升级成最新apk
+  int32 gatePort = 4;
+}
+
+
+// 游戏的id要从1000开始
+enum CSGameMsgID {
+	CS_GAMEMSGID_NONE = 0;
+	CS_GAMEMSGID_LOGIN_REQ = 1001;
+	CS_GAMEMSGID_LOGIN_RES = 1002; 
+
+	CS_GAMEMSGID_QUERY_ROLE_REQ = 1003;
+	CS_GAMEMSGID_QUERY_ROLE_RES = 1004;
+
+
+	CS_GAMEMSGID_PAY_GOOGLE_REQ = 1005; //支付开始
+	CS_GAMEMSGID_PAY_GOOGLE_RES = 1006;
+	CS_GAMEMSGID_PAY_GOOGLE_SUCCESS_REQ = 1007;//支付成功,加钻石，返回后客户端才能执行消耗操作(参考googleapi)
+	CS_GAMEMSGID_PAY_GOOGLE_SUCCESS_RES = 1008;
+
+	CS_GAMEMSGID_ITEM_CHG = 1009;//背包物品变化通知
+	CS_GAMEMSGID_CHIP_DIAMOND_CHG = 1010;//筹码和钻石变化通知
+  
+
+	CS_GAMEMSGID_QUERY_FRIEND_LIST_REQ = 1021;
+	CS_GAMEMSGID_QUERY_FRIEND_LIST_RES = 1022;
+
+	CS_GAMEMSGID_FRIEND_SELF_CHG_NOTIFY = 1025;//通知我的好友数据(自己部分)变化,全量
+	CS_GAMEMSGID_FRIEND_LIST_CHG_NOTIFY = 1026;//通知我的好友数据(列表部分)变化,增量
+	CS_GAMEMSGID_GIVE_FRIEND_CHIP_DAILY_REQ = 1027;//赠送好友每日筹码
+	CS_GAMEMSGID_GIVE_FRIEND_CHIP_DAILY_RES = 1028;//赠送好友每日筹码
+	CS_GAMEMSGID_GIVE_FRIEND_CHIP_DAILY_TIME_RESET_NOTIFY = 1029;//通知客户端每日筹码时间重置
+
+	CS_GAMEMSGID_GET_SIGN_REWARD_REQ = 1030;//领取每日签到奖励
+	CS_GAMEMSGID_GET_SIGN_REWARD_RES = 1031;//领取每日签到奖励
+	CS_GAMEMSGID_CONTINUE_LOGIN_DATA_CHG = 1032;//连续登录数据变化通知
+
+	CS_GAMEMSGID_SHARE_FACEBOOK_SUCCESS_REQ = 1033; //客户端通知服务器分享到Facebook成功
+	CS_GAMEMSGID_SHARE_FACEBOOK_SUCCESS_RES = 1034;
+
+	CS_GAMEMSGID_GET_ONLINE_REWARD_REQ = 1035; //领取在线奖励
+	CS_GAMEMSGID_GET_ONLINE_REWARD_RES = 1036; //领取在线奖励
+
+	CS_GAMEMSGID_QUERY_CHIP_DIAMOND_EXCHANGE_LIST_REQ = 1037;//查询钻石换筹码列表
+	CS_GAMEMSGID_QUERY_CHIP_DIAMOND_EXCHANGE_LIST_RES = 1038;//查询钻石换筹码列表
+	CS_GAMEMSGID_CHIP_DIAMOND_EXCHANGE_REQ = 1039;//钻石换筹码
+	CS_GAMEMSGID_CHIP_DIAMOND_EXCHANGE_RES = 1040;//钻石换筹码
+
+	CS_GAMEMSGID_QUERY_MAIL_REQ = 1041; //查询邮件列表
+	CS_GAMEMSGID_QUERY_MAIL_RES = 1042; //查询邮件列表
+	CS_GAMEMSGID_MAIL_OP_REQ = 1043; //操作邮件
+	CS_GAMEMSGID_MAIL_OP_RES = 1044; //操作邮件
+
+	CS_GAMEMSGID_RENAME_REQ = 1045; //改名
+	CS_GAMEMSGID_RENAME_RES = 1046; //改名
+	CS_GAMEMSGID_CHANGE_ICON_REQ = 1047; //换头像
+	CS_GAMEMSGID_CHANGE_ICON_RES = 1048; //换头像
+
+	CS_GAMEMSGID_INVITE_FACEBOOK_SUCCESS_REQ = 1049; //客户端通知服务器邀请Facebook好友成功
+
+	CS_GAMEMSGID_STATISTICS_CHG = 1050; //角色统计数据变更通知
+	CS_GAMEMSGID_PING = 1051; //ping，keepalive,
+	CS_GAMEMSGID_CHAT_REQ = 1053; // 聊天请求
+	CS_GAMEMSGID_CHAT_RES = 1054; // 聊天回应
+
+	CS_GAMEMSGID_SYSNOTICE_LAMP = 1055; //走马灯
+	CS_GAMEMSGID_SYSNOTICE = 1056; //公告
+
+
+	CS_GAMEMSGID_GET_BROKE_GRANTS_REQ = 1061; //破产补助领取
+	CS_GAMEMSGID_GET_BROKE_GRANTS_RES = 1062; //破产补助领取
+
+	CS_GAMEMSGID_ACTIVITY_GET_REWARD_REQ = 1085; //领取活动奖励
+	CS_GAMEMSGID_ACTIVITY_GET_REWARD_RES = 1086; //领取活动奖励
+
+	CS_GAMEMSGID_ACTIVITY_FINISH_REWARD_BY_CLIENT = 1087; //由客户端决定完成的奖励完成请求,无需回应
+	CS_GAMEMSGID_ACTIVITY_DRAW_RESULT_NOTIFY = 1088; //活动抽奖结果通知
+
+	CS_GAMEMSGID_ACTIVITY_DELETE_NOTIFY = 1089; //服务器主动通知，活动数据删除
+	CS_GAMEMSGID_ACTIVITY_CHG_NOTIFY = 1090; //服务器主动通知，活动数据发生改变(包括添加)
+
+	CS_GAMEMSGID_ACTIVITY_FOCUS_FACEBOOK_REQ = 1091;//关注facebook主页
+	CS_GAMEMSGID_ACTIVITY_FOCUS_FACEBOOK_RES = 1092;//关注facebook主页
+
+	CS_GAMEMSGID_COMMON_DYNAMIC_REQ = 1097; //通用协议
+	CS_GAMEMSGID_COMMON_DYNAMIC_RES = 1098; //通用协议
+
+
+	CS_GAMEMSGID_ITEM_DELETE_REQ = 1101;//删除物品
+	CS_GAMEMSGID_ITEM_DELETE_RES = 1102;//删除物品
+	CS_GAMEMSGID_ITEM_OPEN_PACKAGE_REQ = 1103;//打开礼包
+	CS_GAMEMSGID_ITEM_OPEN_PACKAGE_RES = 1104;//打开礼包
+	CS_GAMEMSGID_SAVE_PERSONAL_INFORMATION_REQ = 1105;//保存个人信息
+	CS_GAMEMSGID_SAVE_PERSONAL_INFORMATION_RES = 1106;//保存个人信息
+	CS_GAMEMSGID_ITEM_EXCHANGE_COUPON_REQ = 1107;//使用兑换券
+	CS_GAMEMSGID_ITEM_EXCHANGE_COUPON_RES = 1108;//使用兑换券
+	CS_GAMEMSGID_ITEM_EXCHANGE_QUERY_HISTORY_REQ = 1109;//使用兑换券历史记录查询
+	CS_GAMEMSGID_ITEM_EXCHANGE_QUERY_HISTORY_RES = 1110;//使用兑换券历史记录查询
+
+
+	CS_GAMEMSGID_SHARE_FACEBOOK_CHG = 1117; // 分享fb日常数据变化通知
+	CS_GAMEMSGID_REPORT_SHARE_DEEPLINK = 1118;	// 玩家分享deeplink
+
+	CS_GAMEMSGID_FINISH_NEWBIE_REQ = 1121;//完成新手引导
+	CS_GAMEMSGID_FINISH_NEWBIE_RES = 1122;//完成新手引导
+	
+
+
+	CS_GAMEMSGID_QUERY_FRIEND_STATUS_REQ = 1129;    //查询好友状态
+	CS_GAMEMSGID_QUERY_FRIEND_STATUS_RES = 1130;
+
+	CS_GAMEMSGID_QUERY_RANK_LIST_REQ = 1131;//查询排行榜列表
+	CS_GAMEMSGID_QUERY_RANK_LIST_RES = 1132;//查询排行榜列表
+	CS_GAMEMSGID_QUERY_RANK_SELF_REQ = 1133;//查询排行榜自己信息
+	CS_GAMEMSGID_QUERY_RANK_SELF_RES = 1134;//查询排行榜自己信息
+	CS_GAMEMSGID_QUERY_RANK_DETAIL_REQ = 1135;//查询排行榜某个人的详细信息
+	CS_GAMEMSGID_QUERY_RANK_DETAIL_RES = 1136;//查询排行榜某个人的详细信息
+
+	CS_GAMEMSGID_CLI_REPORT_BILL_REQ = 1141;//客户端上报信息，记录一下统计日志
+	CS_GAMEMSGID_USE_ITEM_REQ = 1143; //使用物品
+	CS_GAMEMSGID_USE_ITEM_RES = 1144; //使用物品
+
+	CS_GAMEMSGID_ADID_REPORT_REQ = 1149; //上报google adid, ios idfa,广告id
+
+	CS_GAMEMSGID_FIREBASE_ID_REPORT_REQ = 1151; //上报firebase id
+	CS_GAMEMSGID_FIREBASE_SUBSCRIBE_TOPIC = 1152;//s-c 订阅主题
+
+	CS_GAMEMSGID_BLACK_LIST_OP_REQ = 1153; //黑名单操作，添加，删除
+	CS_GAMEMSGID_BLACK_LIST_OP_RES = 1154; //黑名单
+
+	CS_GAMEMSGID_SAVE_CLIENT_DATA_REQ = 1155; //客户端数据
+	CS_GAMEMSGID_SAVE_CLIENT_DATA_RES = 1156; //客户端数据
+
+	CS_GAMEMSGID_ACHIEV_DATA_CHANGE_NOTIFY = 1157; //成就数据变化
+
+	CS_GAMEMSGID_QUERY_OTHER_DETAIL_REQ = 1159; //查询玩家详细信息
+	CS_GAMEMSGID_QUERY_OTHER_DETAIL_RES = 1160; //查询玩家详细信息
+
+	CS_GAMEMSGID_TIP_OFF_PLAYER_REQ = 1161; //举报玩家
+	CS_GAMEMSGID_GAG_CHAT_NOTIFY = 1162;//禁言通知
+
+	CS_GAMEMSGID_HIDE_MY_INFO_REQ = 1163; //隐藏自己的个人信息，不让其他人查询
+	CS_GAMEMSGID_HIDE_MY_INFO_RES = 1164; //隐藏自己的个人信息，不让其他人查询
+
+	CS_GAMEMSGID_PAY_PLAYER_PAYINFO_CHG_NOTIFY = 1165; //玩家支付数据变化通知 
+
+
+	CS_GAMEMSGID_SET_LANGUAGE_REQ = 1189; //设置语言
+	CS_GAMEMSGID_SET_LANGUAGE_RES = 1190; //设置语言
+	CS_GAMEMSGID_CLIENT_HOT_PATCH_FILE_PUSH = 1191; //客户端热补丁推送
+
+	CS_GAMEMSGID_REPORT_INVITE_ME_FBUSERID = 1193;//客户端向服务器上报是谁邀请我的
+	CS_GAMEMSGID_REPORT_INVITE_ME_FBUSERID_RES = 1194;//服务器回应，客户端收到消息可以向fb删除
+	CS_GAMEMSGID_PAY_GET_MONTH_VIP_REWARD_REQ = 1195;// 每日领取vip奖励
+	CS_GAMEMSGID_PAY_GET_MONTH_VIP_REWARD_RES = 1196;// 每日领取vip奖励
+
+	CS_GAMEMSGID_SAVE_CLIENT_BIT_FLAG_REQ = 1197; //客户端位数据
+	CS_GAMEMSGID_SAVE_CLIENT_BIT_FLAG_RES = 1198; //客户端位数据
+
+	CS_GAMEMSGID_VIP_BUY_CARD_REQ = 1199; //购买vip卡
+	CS_GAMEMSGID_VIP_BUY_CARD_RES = 1200; //购买vip卡
+	CS_GAMEMSGID_VIP_CARD_DATA_CHANGED = 1201; //VIPCARD数据变化
+	CS_GAMEMSGID_VIP_CARD_REWARD_EVERY_DAY_REQ = 1202; //每天领奖
+	CS_GAMEMSGID_VIP_CARD_REWARD_EVERY_DAY_RES = 1203; //每天领奖
+
+
+
+	CS_GAMEMSGID_REPORT_CHEAT_REQ = 1221; // 举报作弊
+	CS_GAMEMSGID_REPORT_CHEAT_RES = 1222; // 举报作弊回应 
+
+	CS_GAMEMSGID_GET_TASK_REWARD_REQ = 1223;    //任务领奖
+	CS_GAMEMSGID_GET_TASK_REWARD_RES = 1224;
+
+	CS_GAMEMSGID_TASK_DELETE_NOTIFY = 1225;     //任务数据删除
+	CS_GAMEMSGID_TASK_CHG_NOTIFY = 1226;        //任务数据发生改变(包括添加)
+
+	CS_GAMEMSGID_QUERY_BAG_CHANGE_HISTORY_LIST_REQ = 1231 ; //查询背包变化列表
+	CS_GAMEMSGID_QUERY_BAG_CHANGE_HISTORY_LIST_RES = 1232 ; //查询背包变化列表
+
+	CS_GAMEMSGID_ADD_LEVEL_NOTIFY = 1233; // 等级vip等级相关的奖励
+
+	CS_GAMEMSGID_GET_LEVEL_AWARD_REQ = 1235; // 领奖请求
+	CS_GAMEMSGID_GET_LEVEL_AWARD_RES = 1236; // 领奖回应
+
+	CS_GAMEMSGID_SYNC_LEVEL_INFO = 1237; // 经验同步
+
+	CS_GAMEMSGID_VIP_SHOP_REQ = 1239; // vip商城购买
+	CS_GAMEMSGID_VIP_SHOP_RES = 1240; // vip商城购买
+
+	CS_GAMEMSGID_MAIL_SEND_TO_PLAYER_REQ = 1241; //发送邮件
+	CS_GAMEMSGID_MAIL_SEND_TO_PLAYER_RES = 1242; //发送邮件
+
+	CS_GAMEMSGID_QUERY_GAME_NOTICE_REQ = 1243; //查询公告
+	CS_GAMEMSGID_QUERY_GAME_NOTICE_RES = 1244; //查询公告
+
+
+	CS_GAMEMSGID_GET_ACHIEVEMENT_AWARD_REQ = 1253;//成就领奖
+	CS_GAMEMSGID_GET_ACHIEVEMENT_AWARD_RES = 1254;//成就领奖
+
+	CS_GAMEMSGID_DO_RATE_REQ = 1261;	//评价 
+	CS_GAMEMSGID_DO_RATE_RES = 1262;    
+
+
+	// friend
+	CS_GAMEMSGID_FRIEND_OP_REQ = 1301; //好友操作请求(邀请，同意，拒绝，删除等)
+	CS_GAMEMSGID_FRIEND_OP_RES = 1302; //好友操作回应
+	CS_GAMEMSGID_FRIEND_OP_LIST_CHG_NOTIFY = 1303; //好友操作列表变化通知
+	CS_GAMEMSGID_FRIEND_OP_LIST_DELETE_NOTIFY = 1304; //好友操作列表删除通知
+	CS_GAMEMSGID_QUERY_FRIEND_OP_REQ = 1305;//查询好友op信息，全量
+	CS_GAMEMSGID_QUERY_FRIEND_OP_RES = 1306;//查询好友op信息，全量
+	CS_GAMEMSGID_FRIEND_LIST_DELETE_NOTIFY = 1307;//通知我的好友数据(列表部分)删除
+	CS_GAMEMSGID_FRIEND_CHAT_SAVE_SUCCESS_REQ = 1309; //客户端拉取好友聊天记录成功
+	CS_GAMEMSGID_FRIEND_CHAT_NEW_NOTIFY = 1310; //主动通知客户端有新的好友聊天信息
+	CS_GAMEMSGID_FRIEND_CHAT_QUERY_NEW_REQ = 1311; //客户端拉取好友新的聊天记录
+	CS_GAMEMSGID_FRIEND_CHAT_QUERY_NEW_RES = 1312; //客户端拉取好友聊天记录
+	CS_GAMEMSGID_FRIEND_STRANGER_LIST_CHG_NOTIFY = 1313; //陌生人列表更新
+	CS_GAMEMSGID_FRIEND_STRANGER_LIST_DELETE_NOTIFY = 1314; //陌生人列表删除
+	CS_GAMEMSGID_FRIEND_QUERY_INFO_BY_UID_REQ = 1315; //根据uid查询信息
+	CS_GAMEMSGID_FRIEND_QUERY_INFO_BY_UID_RES = 1316; //根据uid查询信息
+	CS_GAMEMSGID_FRIEND_GET_RECOMMENDER_REQ = 1317; //推荐好友
+	CS_GAMEMSGID_FRIEND_GET_RECOMMENDER_RES = 1318; //推荐好友
+	CS_GAMEMSGID_FRIEND_QUERY_STRANGER_REQ = 1319; //客户端拉取陌生人列表
+	CS_GAMEMSGID_FRIEND_QUERY_STRANGER_RES = 1320; //客户端拉取陌生人列表
+	CS_GAMEMSGID_FRIEND_SET_SETTING_REQ = 1321; //设置
+	CS_GAMEMSGID_FRIEND_SET_SETTING_RES = 1322; //设置
+
+	CS_GAMEMSGID_LINK_REWARD_REQ = 1355; // 链接奖励请求
+	CS_GAMEMSGID_LINK_REWARD_RES = 1356; // 
+		
+	CS_GAMEMSGID_ROLEBASE_CHG_REQ = 1379;
+	CS_GAMEMSGID_ROLEBASE_CHG_RES = 1380;
+
+
+	CS_GAMEMSGID_SET_PERSONALIZED_SIGNATURE_REQ = 1400;
+	CS_GAMEMSGID_SET_PERSONALIZED_SIGNATURE_RES= 1401;
+
+	CS_GAMEMSGID_PRIVILEGE_DURATION_CHG = 1405; //
+
+	//battle begin
+	CS_GAMEMSGID_BATTLE_MATCH_BEGIN_REQ = 1501; // 开始匹配请求
+	CS_GAMEMSGID_BATTLE_MATCH_BEGIN_RES = 1502; // 开始匹配回应
+	CS_GAMEMSGID_BATTLE_MATCH_CANCEL_REQ = 1503; // 取消匹配请求
+	CS_GAMEMSGID_BATTLE_MATCH_CANCEL_RES = 1504; // 取消匹配回应（服务器取消也发这个）
+	CS_GAMEMSGID_BATTLE_ENTER_NOTIFY = 1505; // 通知客户端进入战斗
+
+	CS_GAMEMSGID_BATTLE_ENTER_MAINLAND_REQ = 1507;// 进入副本请求
+	CS_GAMEMSGID_BATTLE_ENTER_MAINLAND_RES = 1508;//
+
+	CS_GAMEMSGID_BATTLE_INIT_NOTIFY = 1509;//服务器通知客户端战斗初始化数据
+	CS_GAMEMSGID_BATTLE_CANCEL_REQ = 1511;//客户端请求离开战斗（服务器立即销毁战斗，方便反复测试）
+	CS_GAMEMSGID_BATTLE_CANCEL_RES = 1512;//客户端请求离开战斗（服务器立即销毁战斗，方便反复测试）
+	//battle end
+}
+
+
+// 客户端显示的错误码
+enum CSErrCode {
+	CS_ERR_NONE = 0;
+	CS_ERR_SYS_FAILURE = 9999;                  // 系统错误
+
+	// 从10000开始，避免和已有错误码冲突
+	CS_ERR_FUNCTION_CLOSE = 10000;              // 功能已关闭
+
+	CS_ERR_FREEZE_PLAYER = 10016;               // 冻结玩家
+	CS_ERR_TASK_ALREADY_REWARD = 10017;         // 任务奖励已领取
+	CS_ERR_TASK_NOT_EXIST = 10018;              // 任务不存在
+	CS_ERR_TASK_NOT_FINISH = 10019;             // 任务未完成
+	
+	CSErrCode_ChipNotCompatible = 10029;		// 钱不合适，少了，或着多了
+	CSErrCode_ServerIsStopping = 10030;			// 正在停服
+	CSErrCode_NotEnoughItem = 10031;			// 物品不够
+
+	CSErrCode_TimingDrawNotTime = 10032;			// 定时抽奖不在规定的时间内
+	CSErrCode_TimingDrawAlreadySuccess = 10033;		//定时抽奖已经抽过了
+}
+
+enum ItemType {
+	ItemType_None = 0;
+	ItemType_Gift = 1; //礼物
+	ItemType_Ticket = 2; //门票
+	ItemType_Coupon = 3; //兑换券
+	ItemType_Package = 4;//礼包
+	ItemType_HeadBorder = 5; //头像边框
+	ItemType_DiscountTicket = 6; //折扣券
+	ItemType_PrivilegeEmoticon = 7; //特权表情
+	ItemType_TreasureTicket = 8; //夺宝券
+	ItemType_Fragment = 9; //碎片,多个组合成一个其他物品，比如电话卡
+	ItemType_ExpCard = 10; //双倍经验卡
+	ItemType_HorseCard = 11;
+}
+
+//道具
+message CSItemInfo {
+	uint32 id = 1;
+	int32 count = 2;
+	int64 uniqueID = 3;//唯一id，每个物品有唯一id
+	int64 expireTime = 4;//过期时间，为0表示没有过期时间
+}
+
+message DBItemInfo {
+	uint32 id = 1;
+	int32 count = 2;
+	int64 uniqueID = 3;//唯一id，每个物品有唯一id
+	int64 expireTime = 4;//过期时间，为0表示没有过期时间
+}
+
+//玩家信息基础,数据库要用,对应数据库表独立字段
+message DBRoleBase {
+	int64 uid = 1;
+	string nick = 2;
+	int32 gender = 3;// 性别
+	string icon = 4;
+	int32 exp = 5;
+	int32 level = 6;
+	int32 vipLevel = 7;
+	int64 chip = 8;
+	int64 diamond = 9;
+	int64 lastLoginTime = 10;
+	int64 createTime = 11;
+	int64 onlineTime = 12;
+	int32 lucky = 13;
+	int32 vipExp = 14; // vip经验
+	int64 jifen = 15; // 好友房积分
+	string lang = 16; //语言
+}
+
+message DBRolePayCooldown{
+	int32 groupID = 1;//CD组id
+	int64 startTime = 2; //CD开始时间
+	int64 buyTime = 3; //购买时间
+	int32 buyCount = 4; //CD里购买次数
+}
+
+message DBRolePaySuccRecord{
+	string itemId = 1; //gp_30
+	string orderIdAddDiamond = 2; //成功添加钻石到玩家身上的订单号,服务器使用
+	string orderIdReq = 3; //请求的订单号，如果已经有了，那么只能有一个，直到成功为止
+	int32 paySuccessCount = 4; //充值成功次数
+	int64 validStartTime = 5;//有效时间开始时间
+	int64 validEndTime = 6; //有效时间结束时间，为0表示没限制
+	int32 payCountToday = 7; //今天成功支付次数
+	int32 versionCode = 8; //商品有可能复用，加上版本号，变了可以清除
+} 
+
+
+//支付信息
+message DBRolePayData {
+	repeated int32 firstPayList = 1;//为首冲双倍功能做的记录
+	repeated DBRolePaySuccRecord paySuccessRecord = 2;//按每个道具索引的支付成功订单记录
+	int64 privilegeEmoticonEndTime = 3; //特权表情到期时间
+	repeated DBRolePayCooldown cooldownList = 4; //时间限制CD信息
+}
+
+enum CSRoleStatisticsID {
+	CSRoleStatisticsID_None = 0;
+	CSRoleStatisticsID_TotalRound = 1;				//游戏总数
+	CSRoleStatisticsID_TotalWin = 2;				//赢总数
+	CSRoleStatisticsID_WinChip = 3;					//赢取筹码
+	CSRoleStatisticsID_BrokeGrantsCount = 4;		//领取破产补助次数
+	CSRoleStatisticsID_GiveFriendChipCount = 5;		//赠送好友筹码次数
+	CSRoleStatisticsID_ShareFacebookCount = 6;		//分享Facebook次数
+	CSRoleStatisticsID_ContinueLostGameCount = 7;	//连续输次数
+	CSRoleStatisticsID_InviteFacebookCount = 8;	//邀请Facebook好友次数
+	CSRoleStatisticsID_BrokenBuyChipBenefitCount = 9;	//破产后优惠购买筹码次数
+	CSRoleStatisticsID_BrokenGrantsMailCount = 10;		//破产后补偿邮件次数
+	CSRoleStatisticsID_ChipDiamondExchange = 11;    //兑换筹码
+	CSRoleStatisticsID_PayDiamond = 12;				//充值钻石
+	CSRoleStatisticsID_Max_ID = 13; //记得修改最大值,不要多也不要少了   
+}
+
+
+//id,value 对
+message DBIDValue {
+	int32 id = 1;
+	int64 value = 2;
+}
+
+//这个结构体加字段记得在后台TickDailyReset函数里加上重置代码，不要忘记!!!
+message DBStatWeekly{
+	int64 lastWeeklyTime = 1; //每周的时间
+	int64 WinChip = 2; //赢取筹码
+	int32 shareFBSignAddDiamond = 3;//签到附加钻石
+	int32 receiveFriendGift = 4; //收到好友礼物的次数
+}
+
+message DBStatisticsData {
+	int64 lastDailyTime = 1; //每日的时间
+	repeated DBIDValue Daily = 2; //每日统计
+	repeated DBIDValue Total = 3; //总的统计
+	DBStatWeekly Weekly = 4;
+}
+
+//
+message SnsFriendInfoAccount {
+	int32 accountType = 1; //
+	string accountID = 2;
+	string nick = 3;
+	int32 gender = 4;
+	string icon = 5;
+	int64 uid = 6;
+	int32 dbQueryResult = 7; //1表示db里查询成功，-1表示失败，0表示未查询
+}
+
+
+
+//好友数据里的自己的数据
+message DBFriendSelf {
+	int64 uid = 1;
+	string icon = 2;
+	string nick = 3;
+	int32 level = 4;
+	int64 lastLoginTime = 5; //上次登录时间
+	int32 vipLevel = 6;
+	int32 vipExp = 7;
+	int32 hideMyInfo = 8;//是不是私密
+	int32 totalRound = 9;
+	DBAchievData achievData = 10;
+	int64 chip = 11;
+	int64 diamond = 12;
+	int32 exp = 13;
+	int32 totalWin = 14;
+	int32 gender = 15;
+	string PersonalizedSignature = 16;
+	int32 lostPushTimes = 17; //流失推送次数,这个限制一个角色3次，3次后不再推送
+	int64 vipCardExpireTime = 18; //最近一次的vip卡的到期时间
+	int32 autoAccept = 19; //是否自动同意添加好友
+	int32 refuseAll = 20; //拒绝所有人，不能让其他人添加我为好友
+	int64 lastLogoutTime = 21; //上次登出时间
+}
+
+//一个好友数据
+message DBFriendOne {
+	int32 friendType = 1; //0,游戏好友，1，sns好友
+	int64 uid = 2;
+	string icon = 3;
+	string nick = 4;
+	int32 level = 5;
+	int64 giveChipTodayTime = 6;//今天赠送筹码时间,需要重置
+	int64 lastLoginTime = 7; //上次登录时间
+	int32 vipLevel = 8;
+	int32 vipExp = 9;
+	int64 chip = 10;
+	int32 gender = 11;
+}
+//数据库的op类型
+enum CliFriendOpType {
+  CliFriendOpType_None = 0;
+  CliFriendOpType_Invite = 1; //邀请
+  CliFriendOpType_Agree = 2;//同意邀请
+  CliFriendOpType_Refuse = 3;//同意邀请
+  CliFriendOpType_Delete = 4;//删除好友
+}
+
+//数据库的op类型
+enum DBFriendOpType {
+  DBFriendOpType_None = 0;
+  DBFriendOpType_Invite = 1; //邀请,这个会保存到op列表里
+  DBFriendOpType_AgreeAdd = 2;//同意邀请,这个不会保存到op列表，内存里就处理完了
+  DBFriendOpType_Delete = 3;//删除这个不会保存到op列表，内存里就处理完了
+}
+//好友数据里的好友列表
+message DBFriendList {
+	repeated DBFriendOne allFriends = 1;
+}
+
+message DBFriendOneOp{
+	int32 opType = 1;
+	int32 opSeq = 2; //序列号，唯一,自增
+	DBFriendOne friend = 3;
+}
+
+message DBFriendChatOne{
+	int64 fromUid = 1;
+	int64 toUid = 2;
+	int64 senderTime = 3;
+	int32 seq = 4;
+	string message = 5;
+	int32 chatType = 6; //ChatType
+}
+
+//一个好友数据
+message DBFriendStrangerOne {
+	int32 playTogetherCount = 1;//一起玩牌次数
+	int64 lastUpdateTime = 2; //最后更新时间，比如最后一起玩牌时间
+	DBFriendOne data = 3;
+}
+
+//好友操作表
+message DBFriendOpData{
+	int32 lastOpSeq = 1;
+	repeated DBFriendOneOp  opList = 2;
+	int32 lastChatSeq = 3;
+	repeated DBFriendChatOne chatList = 4;
+	repeated DBFriendStrangerOne strangerList = 5; //陌生人列表,比如一起玩过牌的
+}
+
+
+
+//邮件操作的校验数据，防止重复领取邮件
+message DBRoleMailOp{
+	int64 getItemMailID = 1;
+	int64 FacebookLoginFirstMailTime = 2; //Facebook登录第一次发邮件奖励
+	int64 NewPlayerGiftMailTime = 3;    // 新用户奖励邮件时间
+}
+//其他信息
+message DBRoleOtherData {
+	uint32 lastVersionUpdateCompensate = 1;//停服补偿最后的版本号
+	int32 shareCountYestoday = 2;//昨天分享次数，每日领取使用
+	int32 continueLoginDays = 3;//连续登录天数,签到奖励使用，不是真正的连续登录天数（玩家登陆了可以不领奖）
+	int64 lastLoginDayTime = 4;//上一天登录的时间,计算连续登录使用
+	int64 lastGetSignRewardTime = 5;//上次领取每日签到奖励时间
+	int32 onlineRewardID = 6; //下个在线奖励ID
+	int64 onlineRewardIDStartTime = 7;//下个在线奖励开始时间
+	int32 onlineRewardTimeLeft = 8;//下个在线奖励还剩下多少时间，这个为了玩家上线下线使用
+	int64 finishNewbieGuideTime = 9; //完成新手引导时间
+	int64 finishBrokenGrantShareTime = 10; //完成分享提高破产次数时间
+	int32 hideMyInfo = 11; //设置自己的个人信息为隐藏，不让其他玩家查询
+	int64 inviteMeUid = 12;		//邀请我的玩家的uid,通过fb邀请的，记录这个表示发过奖了
+	string adid = 13; 		//google，ios 广告id
+	string installChannel = 14; 	//install 渠道
+	int32 accumulativeSignCount = 15;	//累计签到次数
+	string accountEmail = 16; //如果是sns登录的，则在这里是邮箱
+	string newNick = 17; //修改过的名字
+	int32 newGender = 18; //修改过的性别
+	string newIcon = 19; //修改过的头像
+	int32 timingDraw = 20;	//定点抽奖.0,未抽，1，已抽
+	int32 playerInitItemVer = 21;	//出生物品版本号
+	int32 expCardEndTime = 22;	// 双倍经验卡结束时间
+}
+
+enum ActivityType {
+	ActivityType_None = 0;
+	ActivityType_FocusFacebook = 1; //关注Facebook
+	ActivityType_ContinueLogin = 2; //累计登录,不是连续登陆
+	ActivityType_ClientFinish = 3; //客户端完成的活动,表现类型
+	ActivityType_DailyStat = 4; //每日统计数据id
+	ActivityType_PayDiamondDaily = 5; //每日充值钻石数量
+	ActivityType_LatestApk = 6; //升级到最新apk
+	ActivityType_OnlineInTime = 9; //特殊时间段在线，时间段外重置
+}
+
+message DBActivityReward{
+	int32 stat = 1; //状态 0 未完成 1 完成未领取 2 完成已领取
+	int32 finishValue = 2; //目前完成数量
+}
+message DBActivityOne{
+	int32 id = 1;
+	repeated DBActivityReward rewardList = 2;
+	int32 curRewardIndex = 3; //当前有效奖励id,奖励每天一个的情况（后一个奖励依赖前一个奖励完成）下使用
+	int64 addTime = 4;//活动加到身上的时间，某些活动有时间限制，比如30天过期
+	int64 validStartTime = 5; //有效开始时间，某些链式活动需要这个，接了后要第二天有效
+}
+
+
+
+//活动信息
+message DBActivityData {
+	repeated DBActivityOne activityList = 1;
+	int64 FocusFacebookTime = 2; //关注facebook主页的时间
+	uint64 linkActFinishBitFlag = 3; //链式任务完成位标识
+	int32 linkNextActRewardDouble = 4; //下次链式任务奖励翻倍
+}
+
+//背包数据
+message DBBagData {
+	repeated DBItemInfo items = 1; //道具列表
+	int64 itemUniqueID = 2;//道具唯一ID生成
+}
+//个人信息
+message DBPersonalData{
+	string trueName = 1;//真实姓名
+	string phoneNum = 2;//手机号码
+	string telcom = 3;//运营商
+	string email = 4;
+}
+
+// 分享到Facebook信息
+message DBShareFBData {
+	int64 lastDailyTime = 1;        // 上一次重置数据时间
+	repeated DBIDValue daily = 2;   // 每日分享
+}
+
+//一个黑名单数据
+message DBBlackListPlayer {
+	int64 uid = 1;
+}
+
+message DBSysData {
+	repeated DBBlackListPlayer blackList = 1; //黑名单
+}
+
+
+//成就
+message DBAchievData{
+	int64 maxWinChip = 1;				// 单局最大赢钱
+	int64 maxProperty = 2;				// 最大资产
+	repeated DBIDValue rewardInfo = 3;
+}
+
+
+// 任务
+enum TaskType {
+	TaskType_None = 0;
+	TaskType_DailyStat = 1;     //每日统计数据id
+	TaskType_BreakIcePoint = 2; //破冰点数
+	TaskType_MatchRank = 3;     //比赛名次
+	TaskType_PlayerNormalGame = 4;  //普通xx场玩牌
+	TaskType_WinNormalGame = 5;     //普通xx场赢牌
+	TaskType_Pay = 6;           //充值
+}
+
+message DBTaskOne{
+	int32 id = 1;               
+	int32 currVal = 2;          // 当前值
+	int32 maxVal = 3;           // 最大值
+	int32 lastRewardTime = 4;   // 领取奖励时间
+	int32 lastResetTime = 5;    // 任务刷新时间
+}
+
+message DBTaskData{
+	repeated DBTaskOne taskList = 1;
+}
+
+
+message DBDoRateData{
+	int64 lastRateTime = 1; //上次评价时间
+	int32 lastRateStar = 2; //上次评价星级
+}
+message DBInviteeRoleInfo{
+	int64 uid = 1;
+	string nick = 2; //名字
+	string icon = 3; //头像
+}
+message DBInviteeFriendData{
+	int32 inviteeLvupRewardGetCount = 1; //已经领取奖励的数量
+	repeated DBInviteeRoleInfo inviteeRewardRole = 2; //邀请的玩家成功升级后的列表
+}
+
+message LinkRewardInfo {
+	int32 linkId = 1;
+	int64 linkAwardTime = 2;
+}
+
+message DBLinkRewardData {
+	repeated LinkRewardInfo linkRewardList = 1;
+}
+
+message DBBindAccount{
+	int32 accountType = 1;
+	string accountId = 2;
+	string email = 3;
+	string nick = 4;
+}
+
+message DBBindAccountData{
+	repeated DBBindAccount accoutList = 1;
+}
+
+message DBHero{
+	int32 descId = 1;
+	int32 level = 2;
+	int32 star = 3;
+	int32 quality = 4;
+	int32 exp = 5;
+	int32 smallSpellLevel = 6;
+	int32 bigSpellLevel = 7;
+}
+
+message DBHeroLineupData{
+	int32 pos1_heroId = 1;
+	int32 pos2_heroId = 2;
+	int32 pos3_heroId = 3;
+	int32 pos4_heroId = 4;
+	int32 pos5_heroId = 5;
+	int32 pos6_heroId = 6;
+}
+
+message DBHerosData{
+	repeated DBHero list = 1;
+	DBHeroLineupData lineup = 2;
+}
+
+ //玩家信息二进制,数据库要用
+message DBRoleData {
+	int32 loginCount = 1; //登录次数
+	DBRolePayData payData = 2;  //支付数据
+	DBStatisticsData statData = 3; //统计数据，任务，成就可使用
+	DBBagData Bag = 4; //背包数据
+	DBRoleMailOp mailOp = 5; //邮件操作的校验数据，防止重复领取邮件
+	DBRoleOtherData otherData = 6;  //其他数据
+	DBActivityData activityData = 7;    //活动数据
+	DBPersonalData personalData = 8;    //个人信息
+	DBShareFBData shareFBData = 9;  // 分享到FB的信息
+	DBSysData sysData = 10; //一些系统数据
+	DBAchievData archievData = 11; //成就数据
+	DBTaskData taskData = 12;   // 任务
+	DBLevelData levelData = 13; // 等级
+	DBDoRateData rateData = 14; //评价
+	DBLinkRewardData linkRewardData = 15; // 链接奖励数据
+	DBBindAccountData bindAccountData = 16; //绑定的帐号
+	DBHerosData herosData = 17;
+}
+
+message LevelAward {
+	int32 level = 1;
+	int32 awardStatus = 2; // 0 不可领取 1 可领取 2 领取成功
+}
+
+
+message ShopData {
+	int32 level = 1;
+	int32 shopCount = 2; // 购买次数
+	int32 shopStatus = 3;   // 0. 不可购买 1. 可购买 2.已购买 
+}
+
+message DBVipCard{
+	int32 cardId = 1; 
+	int64 startTime = 2;
+	int64 expireTime = 3; //到期时间
+	int32 sendWillExpireMail = 4;//到期邮件
+	int32 sendExpiredMail = 5;//到期邮件
+}
+
+message DBVipCardData{
+	repeated DBVipCard vipCards = 1;//vip卡
+	int64 vipCardEveryDayChipRewardTime = 2; //vip卡每天领取筹码时间
+	int32 vipCardEveryDayChipRewardId = 3;//cardId
+}
+
+message DBLevelData {
+	repeated LevelAward levelAward = 1; // 等级奖励信息
+	repeated LevelAward vipLevelAward = 2; // vip奖励信息
+	repeated ShopData vipShopData = 3; // vip 商城购买数据
+	DBVipCardData vipCardData = 4; //vipcard数据
+}
+
+
+message DBRoleExchangeRecord{
+	int64 tradeTime = 1;
+	string trueName = 2;
+	int32 itemID = 3;
+}
+
+
+message DBBagChangeRecord{
+	int32 type = 1; //1钱，2钻石
+	int64 changeValue = 2; //变化值
+	int64 newValue = 3; //最新值
+	int32 reason = 4;//原因
+	int64 changeTime = 5;//时间
+}
+
+//保存在玩家身上的好友桌牌局信息
+message DBFriendDeskPlayerData{
+	int32 id = 1;
+	int32 startTime = 2;
+}
+
+message DBRoleUnimportanceData{
+	repeated DBRoleExchangeRecord exchangeRecordList = 1;//实物兑换历史记录,总共记录最多限制，比如20条
+	int32 magicNum = 2;
+	string clientData = 3;
+	uint64 clientBitFlag = 4;
+	repeated DBBagChangeRecord DBBagChangeRecordList = 5;//金钱钻石变化
+}
+
+enum MailOpType {
+	MailOpType_None = 0;
+	MailOpType_Insert = 1;
+	MailOpType_Delete = 2;
+	MailOpType_GetItem = 3; //领取
+}
+
+enum MailType {
+	MailType_None = 0;
+	MailType_FriendGiftDaily = 1;       //好友每日礼物
+	MailType_VersionUpdateCompensate = 2; //停服版本更新补偿
+	MailType_FacebookLoginFirst = 3;    //第一次使用Facebook登录
+	MailType_ExchangeSuccess = 4;   // 兑换成功通知
+	MailType_NewPlayerGift = 5;     // 新玩家登录奖励
+	MailType_Rank = 6;     // 排行榜
+	MailType_FirstPayReward = 7;       // 首次充值附加奖励
+	MailType_SendToPlayer = 8;     // 玩家发的邮件
+	MailType_InviteeSuccessReward = 9; //邀请的玩家达到要求，发奖一次
+	MailType_LinkAwardReward = 10; // 链接奖励
+	MailType_RefundRoomCard = 11; // 链接奖励
+
+}
+
+message DBMail{
+	int64 uid = 1;
+	uint32 mailID = 2;
+	int32 mailType = 3;//类型，预留，普通邮件为0
+	int64 senderUid = 4; //发送者的uid,sender为0表示系统邮件
+	string senderName = 5; //发送者的名字
+	string senderIcon = 6;
+	int64 sendTime = 7;
+	string title = 8;
+	string content = 9;
+	int64 getItemTime = 10; //领取邮件附件的时间
+	int64 chip = 11;
+	int32 diamond = 12;
+	repeated DBItemInfo items = 13;
+	int64 insertUniqueID = 14; //插入时候的消息里的唯一ID，免得重复了
+	int64 deleteTime = 15;//删除时间,为了逻辑正确，邮件采用标记删除，除非邮件很大或者过期了
+	int64 param1 = 16; //参数1,方便客户端构造邮件内容等使用
+	int64 param2 = 17; //参数2,方便客户端构造邮件内容等使用
+	string paramStr1 = 18; //字符串参数1,方便客户端构造邮件内容等使用
+	int64 param3 = 19;
+	int64 param4 = 20;
+	int64 param5 = 21;
+}
+
+message DBMailBlob{
+	uint32 lastSeq = 1;
+	repeated DBMail mailList = 2;
+	int64 todayResetTime = 3;//用来做每日限制
+	int32 friendDailyChipMailCount = 4;//每日好友送钱
+	int32 inviteeSuccessMailCount = 5;//每日邀请成功送钱
+} 
+
+
+
+
+//CS_MSGID_ACCOUNT_REQ
+message CSAccountAuthReq {
+	AccountInfo account = 1;
+	VersionInfo version = 2;
+
+	//
+	string deviceId = 3;
+	// iphone5S
+	string deviceInfo = 4;
+	// android4.2
+	string osInfo = 5;
+	// 2g 3g 4g wift
+	string netInfo = 6;
+	// cn is 8
+	int32 timezone = 7;
+	// comm,qq,360
+	string channel = 8;
+
+	uint32 serverID = 9;
+}
+
+//1201 facebook服务器帐号验证出现问题，请稍后再试
+//1202 同设备id在一段时间内登录的不同帐号数量太多，请等待一段时间
+//CS_MSGID_ACCOUNT_RES
+message CSAccountAuthRes {
+	int32 ret = 1;
+	string token = 2;
+	AccountInfo account = 3;
+	int64 uid = 4; // 用户ID
+	uint32 serverID = 5;
+	string nick = 6;
+	int32 gender = 7;
+	string icon = 8;
+	int32 timeZone = 9; //时区信息
+}
+
+//CS_MSGID_GAME_LIST_REQ
+message CSGameListReq {
+}
+
+//CS_MSGID_GAME_LIST_RES
+message CSGameListRes {
+	repeated GameInfo games = 1;
+}
+
+//CS_MSGID_VERSION_REQ
+message CSVersionCheckReq {
+	VersionInfo version = 1;
+	string apkVersion = 2; //上报一下apk的版本
+}
+
+//CS_MSGID_VERSION_RES
+message CSVersionCheckRes {
+	int32 ret = 1;
+	string newVersion = 2; //最新版本号
+	string downloadUrl = 3; //更新包地址
+	string gateUrl = 4; //gate_lobby服务器的连接地址(ip或者url:port)
+	int64 chip = 5;   //筹码
+	int64 diamond = 6; //钻石
+	int32 itemID = 7; //道具ID
+	int32 itemCount = 8; //道具数量
+	string content = 9; //显示内容
+	int32 patchFileSize = 10; //更新包大小
+	string patchFileMd5 = 11;//更新包md5
+	int32 forReview = 12; //是否审核版本
+
+}
+//CS_MSGID_BIND_GUEST_FACEBOOK_REQ
+message CSBindGuestFacebookReq {
+	AccountInfo account = 1;
+	int64 uid = 2;
+	string guestAccountID = 3;
+}
+// 2001 校验失败
+// 2002 Facebook帐号已经绑定了一个游戏帐号了，无法再次绑定
+//CS_MSGID_BIND_GUEST_FACEBOOK_RES
+message CSBindGuestFacebookRes {
+	int32 ret = 1;
+	int32 accountType = 2;
+	string facebookAccountID = 3;
+	string email = 4;
+	string nick = 5;
+}
+
+//CS_MSGID_UNBIND_GUEST_FACEBOOK_REQ = 21;
+message CSUnBindGuestFacebookReq {
+	AccountInfo account = 1;
+	int64 uid = 2;
+	string guestAccountID = 3;
+}
+//CS_MSGID_UNBIND_GUEST_FACEBOOK_RES = 22;
+message CSUnBindGuestFacebookRes {
+	int32 ret = 1;
+	int32 accountType = 2;
+	string facebookAccountID = 3;
+	string newNick = 4; //新昵称
+	string newIcon = 5;//新头像
+}
+
+//CS_GAMEMSGID_LOGIN_REQ
+message CSLoginReq {
+	AccountInfo account = 1;
+	VersionInfo version = 2;
+	int64 uid = 3;
+	string apkVersion = 4; //上报一下apk的版本
+	int32 zipHotPatch = 5; //热补丁是否压缩
+	string deviceId = 6; //设备id
+	string hotPatchMd5 = 7; //客户端当前版本热补丁文件的MD5
+	string deviceInfo = 8; //htc t100
+}
+
+//CS_GAMEMSGID_LOGIN_RES
+message CSLoginRes {
+	int32 ret = 1;
+	int64 serverTime = 2;
+	string curVersion = 3;//服务器版本，客户端根据这个可以判断是否需要重启进行版本匹配，进行更新
+	int32 clientCfgParam1Rate = 4;//客户端配置1, 100%全开0全关
+	int32 clientCfgParam2Rate = 5; //新用户首次登陆弹出幸运星、FB点赞广告，改为用户隔天登陆后再弹出,0全关，100%全开
+	int32 clientCfgParam3Rate = 6; //
+	int32 clientCfgParam4Rate = 7; //
+	int32 forReview = 8; //review special version control
+}
+
+//CS_GAMEMSGID_QUERY_ROLE_REQ
+message CSQueryRoleReq {
+	int64 uid = 1;
+}
+
+//CS_GAMEMSGID_QUERY_ROLE_RES
+message CSQueryRoleRes {
+	int32 ret = 1;
+	DBRoleBase roleBase = 2;
+	DBRoleData roleData = 3;
+	DBRoleUnimportanceData unimportanceData = 4;
+	int64 gagChatEndTime = 5; //禁言结束时间
+	int64 freezeTime = 6;  // 解封时间
+}
+
+
+//google支付请求
+//CS_GAMEMSGID_PAY_GOOGLE_REQ
+message CSPayGoogleReq {
+	int64 uid = 1;
+	string itemID = 2;
+}
+
+//100601 已经不在有效期内
+//100602 购买次数限制
+//100603 缺少折扣券
+//100604 vip等级限制
+//CS_GAMEMSGID_PAY_GOOGLE_RES
+message CSPayGoogleRes {
+	int32 ret = 1;
+	int64 uid = 2;
+	string itemID = 3;
+	string orderId = 4; //订单号
+}
+
+//google支付成功后的请求，purchaseData表示支付数据，google返回
+//CS_GAMEMSGID_PAY_GOOGLE_SUCCESS_REQ
+message CSPayGoogleSuccessReq {
+	int64 uid = 1;
+	string purchaseData = 3;
+	string signature = 4;
+	string orderId = 5; //订单号,ios使用
+}
+
+//
+//CS_GAMEMSGID_PAY_GOOGLE_SUCCESS_RES
+message CSPayGoogleSuccessRes {
+	int32 ret = 1;
+	int64 uid = 2;
+	string itemID = 3;
+	string orderId = 4; //订单号
+	int64 newDiamond = 5; //身上最新的钻石，客户端根据这个更新数据
+	uint32 money = 6; //充值的钱，客户端可根据这个上报第三方平台
+	uint32 diamond = 7;
+	int64 chip = 8;
+	repeated CSItemInfo getItemList = 9;
+	int32 vipCard = 10; //获得的vip卡
+}
+//CS_GAMEMSGID_QUERY_CHIP_DIAMOND_EXCHANGE_LIST_REQ
+message CSQueryChipDiamondExchangeListReq {
+}
+message CSChipDiamondExchangeOneItem {
+	int32 id = 1;
+	int64 chip = 2;
+	int32 diamond = 3;
+	string startDiscountTime = 4;
+	string endDiscountTime = 5;
+	int32 addChipPercent = 6;
+	int32 brokenAddChipPercent = 7;//破产后购买优惠，不为0表示有优惠
+	int32 ItemId = 8; //购买道具Id
+	int32 itemCount = 9;
+	string give = 10; //附赠比例
+	int32 baseChip = 11; // 原始筹码
+}
+//CS_GAMEMSGID_QUERY_CHIP_DIAMOND_EXCHANGE_LIST_RES
+message CSQueryChipDiamondExchangeListRes {
+	repeated CSChipDiamondExchangeOneItem items = 1;
+}
+//CS_GAMEMSGID_CHIP_DIAMOND_EXCHANGE_REQ
+message CSChipDiamondExchangeReq {
+	int32 id = 1;
+	int64 buyChip = 2; //牌桌内由于钱不足踢出，主动购买筹码数量
+	int32 useDiamond = 3; //牌桌内由于钱不足踢出，主动购买筹码数量，花费的钻石
+}
+//104001 钻石不足
+//104002 筹码不足
+//CS_GAMEMSGID_CHIP_DIAMOND_EXCHANGE_RES
+message CSChipDiamondExchangeRes {
+	int32 ret = 1;
+	int32 id = 2;
+	int64 chip = 3;
+	int32 diamond = 4;
+	repeated CSItemInfo getItemList = 5;
+}
+
+
+//CS_GAMEMSGID_ITEM_CHG
+message CSPlayerItemChg {
+	 repeated DBItemInfo items = 1; //最新的道具列表,先这样，游戏里道具变化毕竟很少，浪费点流量无所谓了
+	string chgReason = 2;
+}
+//CS_GAMEMSGID_ITEM_DELETE_REQ
+message CSItemDeleteReq{
+	int64 uniqueID = 1;
+}
+//110201不存在
+//110202没有过期，无法删除
+//CS_GAMEMSGID_ITEM_DELETE_RES
+message CSItemDeleteRes{
+	int64 uniqueID = 1;
+	int32 ret = 2;
+}
+//CS_GAMEMSGID_ITEM_OPEN_PACKAGE_REQ
+message CSItemOpenPackageReq{
+	int64 uniqueID = 1;
+	uint32 itemID = 2;
+}
+//110401不存在
+//CS_GAMEMSGID_ITEM_OPEN_PACKAGE_RES
+message CSItemOpenPackageRes{
+	int64 uniqueID = 1;
+	uint32 itemID = 2;
+	int32 ret = 3;
+}
+
+//CS_GAMEMSGID_CHIP_DIAMOND_CHG
+message CSPlayerChipDiamondChg {
+	int64 newChip = 1;
+	int64 newDiamond = 2;
+	string chgReason = 3;
+	int32 reason = 4;
+	int32 time = 5;
+}
+
+//CS_GAMEMSGID_SAVE_PERSONAL_INFORMATION_REQ
+message CSSavePersonalInformationReq{
+	DBPersonalData data = 1;
+}
+//CS_GAMEMSGID_SAVE_PERSONAL_INFORMATION_RES
+message CSSavePersonalInformationRes{
+	DBPersonalData data = 1;
+	int32 ret = 2;
+}
+//CS_GAMEMSGID_ITEM_EXCHANGE_COUPON_REQ
+message CSItemExchangeCouponReq{
+	int64 uniqueID = 1;
+	uint32 itemID = 2;
+	int32 getDiamond = 3; //是否要钻石
+	int32 exchangeId = 4;//兑换id
+}
+//110801 不存在
+//110802 没有电话等个人信息
+//110803 上个请求未完成
+//CS_GAMEMSGID_ITEM_EXCHANGE_COUPON_RES
+message CSItemExchangeCouponRes{
+	int64 uniqueID = 1;
+	uint32 itemID = 2;
+	int32 ret = 3;
+	int32 exchangeId = 4;//兑换id
+}
+//CS_GAMEMSGID_ITEM_EXCHANGE_QUERY_HISTORY_REQ
+message CSItemExchangeQueryHistoryReq{
+}
+//CS_GAMEMSGID_ITEM_EXCHANGE_QUERY_HISTORY_RES
+message CSItemExchangeQueryHistoryRes{
+	repeated DBRoleExchangeRecord exchangeRecordList = 1;//实物兑换历史记录,总共记录最多限制，比如20条
+}
+
+
+//CS_GAMEMSGID_FINISH_NEWBIE_REQ
+message CSFinishNewbieReq{
+	int32 skipNewbie = 1; //略过新手引导
+	int32 logNewbieStep = 2; //记录新手引导中间步骤
+	int32 getReward = 3; //完成新手引导，配了奖励的话发奖
+}
+//CS_GAMEMSGID_FINISH_NEWBIE_RES
+message CSFinishNewbieRes{
+	int32 ret = 1;
+	int32 getChip = 2; //获得奖励的筹码
+}
+
+
+//CS_GAMEMSGID_QUERY_FRIEND_LIST_REQ
+message CSQueryFriendListReq {
+}
+
+//CS_GAMEMSGID_QUERY_FRIEND_LIST_RES
+message CSQueryFriendListRes {
+	//包含自己的排行版信息
+	DBFriendSelf self = 1;//自己的
+	DBFriendList list = 2;//好友列表
+}
+
+
+//CS_GAMEMSGID_FRIEND_SELF_CHG_NOTIFY
+message CSFriendSelfChgNotify {
+	DBFriendSelf self = 1;//自己的
+}
+//CS_GAMEMSGID_FRIEND_LIST_CHG_NOTIFY
+message CSFriendListChgNotify {
+	DBFriendOne oneFriend = 1;
+}
+//CS_GAMEMSGID_FRIEND_LIST_DELETE_NOTIFY = 1307;//通知我的好友数据(列表部分)删除
+message CSFriendListDeleteNotify {
+	DBFriendOne oneFriend = 1;
+}
+//CS_GAMEMSGID_GIVE_FRIEND_CHIP_DAILY_REQ
+message CSGiveFriendChipDailyReq {
+	int64 friendUid = 1;
+}
+//102801 送过了
+//102802 次数上限了
+//CS_GAMEMSGID_GIVE_FRIEND_CHIP_DAILY_RES
+message CSGiveFriendChipDailyRes {
+	int32 ret = 1;
+	int64 friendUid = 2;
+	int64 giveTime = 3;
+}
+//CS_GAMEMSGID_GIVE_FRIEND_CHIP_DAILY_TIME_RESET_NOTIFY
+message CSGiveFriendChipDailyTimeResetNotify{
+}
+//CS_GAMEMSGID_FRIEND_OP_REQ = 1301; //好友操作请求(邀请，同意，拒绝，删除等)
+message CSFriendOpReq{
+	int32 opType = 1;
+	int64 targetUid = 2;
+	int32 opSeq = 3; //唯一序列号，同意，拒绝，删除的时候需要
+}
+//130201 对方好友列表已经满了，邀请失败
+//130202 自己好友列表已经满了，邀请失败
+//130211 删除失败，对方是Facebook好友
+//CS_GAMEMSGID_FRIEND_OP_RES = 1302; //好友操作回应
+message CSFriendOpRes{
+	int32 opType = 1;
+	int64 targetUid = 2;
+	int32 opSeq = 3; //唯一序列号，同意，拒绝，删除的时候需要
+	int32 ret = 4;
+}
+//CS_GAMEMSGID_FRIEND_OP_LIST_CHG_NOTIFY
+message CSFriendOpListChgNotify{
+	DBFriendOneOp op = 1;
+}
+//CS_GAMEMSGID_FRIEND_OP_LIST_DELETE_NOTIFY
+message CSFriendOpListDeleteNotify{
+	DBFriendOneOp op = 1;
+}
+//CS_GAMEMSGID_QUERY_FRIEND_OP_REQ = 1305;//查询好友op信息，全量
+message CSQueryFriendOpReq{
+
+}
+//CS_GAMEMSGID_QUERY_FRIEND_OP_RES = 1306;//查询好友op信息，全量
+message CSQueryFriendOpRes{
+	DBFriendOpData opData = 1;
+}
+//CS_GAMEMSGID_FRIEND_CHAT_SAVE_SUCCESS_REQ
+message CSFriendChatSaveSuccessReq{
+	int32 seq = 1;
+}
+//CS_GAMEMSGID_FRIEND_CHAT_NEW_NOTIFY = 1310; //主动通知客户端有新的好友聊天信息
+message CSFriendChatNewNotify{
+	DBFriendChatOne newChat = 1;
+}
+//CS_GAMEMSGID_FRIEND_CHAT_QUERY_NEW_REQ = 1311; //客户端拉取好友新的聊天记录
+message CSFriendChatQueryNewReq{
+	int32 lastSuccessSaveSeq = 1;//客户端成功保存的聊天信息最后seq
+}
+//CS_GAMEMSGID_FRIEND_CHAT_QUERY_NEW_RES = 1312; //客户端拉取好友聊天记录
+message CSFriendChatQueryNewRes{
+	repeated DBFriendChatOne newChatArray = 1;
+}
+//CS_GAMEMSGID_FRIEND_STRANGER_LIST_CHG_NOTIFY = 1313; //陌生人列表更新
+message CSFriendStrangerListChgNotify{
+	DBFriendStrangerOne stranger = 1;
+}
+//CS_GAMEMSGID_FRIEND_STRANGER_LIST_DELETE_NOTIFY = 1314; //陌生人列表删除
+message CSFriendStrangerListDeleteNotify{
+	int64 strangerUid = 1;
+}
+//CS_GAMEMSGID_FRIEND_QUERY_INFO_BY_UID_REQ = 1315; //根据uid查询信息
+message CSFriendQueryInfoByUidReq{
+	int64 targetUid = 1;
+}
+//CS_GAMEMSGID_FRIEND_QUERY_INFO_BY_UID_RES = 1316; //根据uid查询信息
+message CSFriendQueryInfoByUidRes{
+	int64 targetUid = 1;
+	int32 ret = 2;
+	DBFriendOne info = 3;
+}
+//CS_GAMEMSGID_FRIEND_GET_RECOMMENDER_REQ = 1317; //推荐好友
+message CSFriendGetRecommenderReq{
+
+}
+//CS_GAMEMSGID_FRIEND_GET_RECOMMENDER_RES = 1318; //推荐好友
+message CSFriendGetRecommenderRes{
+	repeated DBFriendOne list = 1; //推荐列表
+}
+//CS_GAMEMSGID_FRIEND_QUERY_STRANGER_REQ = 1319; //客户端拉取好友新的聊天记录
+message CSFriendQueryStrangerReq{
+}
+//CS_GAMEMSGID_FRIEND_QUERY_STRANGER_RES = 1320; //客户端拉取好友聊天记录
+message CSFriendQueryStrangerRes{
+	repeated DBFriendStrangerOne list = 1;//全量
+}
+//CS_GAMEMSGID_FRIEND_SET_SETTING_REQ = 1321; //设置
+message CSFriendSetSettingReq{
+	int32 autoAccept = 1; //是否自动同意添加好友
+	int32 refuseAll = 2; //拒绝所有人，不能让其他人添加我为好友
+}
+//CS_GAMEMSGID_FRIEND_SET_SETTING_RES = 1322; //设置
+message CSFriendSetSettingRes{
+	int32 ret = 1;
+	int32 autoAccept = 2; //自动同意他人邀请我为他的好友
+	int32 refuseAll = 3; //拒绝所有人，不让其他人邀请我
+}
+
+
+
+
+//CS_GAMEMSGID_QUERY_MAIL_REQ
+message CSQueryMailReq {
+}
+//CS_GAMEMSGID_QUERY_MAIL_RES
+message CSQueryMailRes {
+	repeated DBMail mailList = 1;
+}
+//CS_GAMEMSGID_MAIL_OP_REQ
+message CSMailOpReq {
+	int32 opType = 1;
+	DBMail mail = 2;
+}
+//104401 邮件不存在
+//104402 已经领取了
+//104403 正在领取，请等待
+//CS_GAMEMSGID_MAIL_OP_RES
+message CSMailOpRes {
+	int32 ret = 1;
+	int32 opType = 2;
+	DBMail mail = 3;
+}
+
+//CS_GAMEMSGID_RENAME_REQ
+message CSRenameReq {
+	string newName =1;
+}
+//CS_GAMEMSGID_RENAME_RES
+message CSRenameRes {
+	int32 ret = 1;
+	string newName =2;
+}
+//CS_GAMEMSGID_CHANGE_ICON_REQ
+message CSChangeIconReq{
+	string newIcon = 1;
+}
+//CS_GAMEMSGID_CHANGE_ICON_RES
+message CSChangeIconRes{
+	int32 ret = 1;
+	string newIcon = 2;
+}
+
+//CS_GAMEMSGID_GET_SIGN_REWARD_REQ
+message CSGetSignRewardReq {
+	int32 shareNow = 1;//是否分享
+}
+//103101今天已经领取过
+//CS_GAMEMSGID_GET_SIGN_REWARD_RES
+message CSGetSignRewardRes {
+	int32 ret = 1;
+	int32 shareNow = 2;//是否分享
+	int32 actfriendCount = 3;
+	int64 lastGetSignRewardTime = 4;
+	int64 chip = 5;//获得的筹码
+	int32 diamond = 6; //获得的钻石
+}
+//CS_GAMEMSGID_CONTINUE_LOGIN_DATA_CHG
+message CSContinueLoginDataChg{
+	int32 shareCountYestoday = 1;//昨天分享次数，每日领取使用
+	int32 continueLoginDays = 2;//连续登录天数,签到奖励
+	int64 lastLoginDayTime = 3;//上一天登录的时间,计算连续登录使用
+	int32 accumulativeSignCount = 4;//累计签到天数
+}
+
+//enum CSShareFacebookDailyRewardID {
+//    CSShareFacebookDailyRewardID_Match = 0;       // 赛事分享
+//}
+
+//CS_GAMEMSGID_SHARE_FACEBOOK_SUCCESS_REQ
+message CSShareFacebookSuccessReq {
+	int32 dailyRewardID = 1;
+}
+
+//CS_GAMEMSGID_SHARE_FACEBOOK_SUCCESS_RES
+message CSShareFacebookSuccessRes {
+	int32 ret = 1;
+	int32 dailyRewardID = 2;
+	int32 dailyRewardCount = 3;
+	int32 rewardChip = 4;
+}
+
+//CS_GAMEMSGID_SHARE_FACEBOOK_CHG
+message CSShareFacebookChg {
+	repeated DBIDValue Daily = 1; //每日变化通知
+}
+
+//CS_GAMEMSGID_INVITE_FACEBOOK_SUCCESS_REQ
+message CSInviteFacebookSuccessReq {
+	int32 inviteCount = 1;
+}
+
+//CS_GAMEMSGID_REPORT_SHARE_DEEPLINK
+message CSReportShareDeeplink{
+	string where = 1; //
+}
+
+//CS_GAMEMSGID_GET_ONLINE_REWARD_REQ
+message CSGetOnlineRewardReq {
+}
+//103601在线时间不够
+//CS_GAMEMSGID_GET_ONLINE_REWARD_RES
+message CSGetOnlineRewardRes {
+	int32 ret = 1;
+	int32 newRewardID = 2;
+	int64 onlineRewardIDStartTime = 3;
+	int32 onlineRewardTimeLeft = 4;
+}
+
+//CS_GAMEMSGID_STATISTICS_CHG
+message CSStatisticsChg {
+	int32 isNewDay = 1;//是否是新的一天
+	repeated DBIDValue Daily = 2; //每日变化通知
+	repeated DBIDValue Total = 3; //总共变化通知
+}
+
+//客户端发给服务器->服务器回应->客户端回应
+//CS_MSGID_PING
+//CS_GAMEMSGID_PING
+message CSPing {
+	int64 clientTime = 1;
+	int64 serverTime = 2;
+	int32 seq = 3;
+}
+
+enum ChatChannelType {
+	Room = 0;
+	Yuxiaxie = 1;
+	Friend = 2;
+	Horse = 3;
+}
+
+enum ChatType{
+	CT_None = 0;
+	CT_Emoticon = 2; //普通表情
+	CT_PrivilegeEmoticon = 3; //特权表情
+	CT_MagicEmotion = 4; //魔法表情
+	CT_FriendSendChip = 5; //好友送钱给你
+	CT_FriendRoomInvite = 6; //好友房邀请
+}
+
+//CS_GAMEMSGID_CHAT_REQ
+message CSChatReq {
+	int64 uid = 1;
+	int32 type = 2;
+	string message = 3;
+	int64 targetUid = 4;
+	ChatChannelType chatChannelType = 5;
+	int32 vipCardId = 6;//服务器填
+}
+
+//CS_GAMEMSGID_CHAT_RES
+message CSChatRes {
+	int64 uid = 1;
+	string nick = 2;
+	string icon = 3;
+	int32 type = 4;
+	string message = 5;
+	int64 targetUid = 6;
+	int32 gender = 7;
+	int32 vipCardId = 8;
+	int32 ret = 9;
+}
+
+// CS_GAMEMSGID_SYSNOTICE_LAMP
+message CSSysNoticeLamp {
+	int32 seq = 1; //序列号，一直增长
+	int64 startTime = 2; //开始时间
+	int64 endTime = 3; //结束时间
+	int32 showInterval = 4; //时间间隔
+	int32 showCount = 5; //显示次数
+	string content = 6; //内容
+	int32 id = 7; //唯一id
+	int32 envType = 8; // 场景类型 0.全服 1.赛马和牌桌
+}
+//CS_GAMEMSGID_SYSNOTICE
+message CSSysNotice {
+	int32 seq = 1; //序列号，一直增长
+	int64 startTime = 2; //开始时间
+	int64 endTime = 3; //结束时间
+	string title = 4; //标题
+	string content = 6; //内容
+	string icon = 7; //图标
+	string pic = 8;//图片
+	string jump = 9;// 跳转类型
+	int32 popup = 10;//是否弹窗
+	int32 id = 11; //唯一id
+}
+
+//CS_GAMEMSGID_ACTIVITY_GET_REWARD_REQ
+message CSActivityGetRewardReq{
+	int32 id = 1;
+	int32 rewardIndex = 2; //第几个奖励，下标，0开始
+}
+//108601 状态不对，未完成
+//108602 状态不对，已经完成
+//CS_GAMEMSGID_ACTIVITY_GET_REWARD_RES
+message CSActivityGetRewardRes{
+	int32 ret = 1;
+	int32 id = 2;
+	int32 rewardIndex = 3; //第几个奖励，下标，0开始
+}
+//CS_GAMEMSGID_ACTIVITY_FINISH_REWARD_BY_CLIENT
+message CSActivityFinishRewardByClient {
+	int32 id = 1;
+	int32 rewardIndex = 2; //第几个奖励，下标，0开始
+}
+//CS_GAMEMSGID_ACTIVITY_DRAW_RESULT_NOTIFY
+message CSActivityDrawResultNotify{
+	int32 activityId = 1; //活动id
+	int32 activityRewardIndex = 2;//活动奖励索引 
+	int32 drawId = 3; //抽奖id
+	int32 drawResultItemIndex = 4; //抽奖的结果索引
+	int32 linkNextActRewardDouble = 5; //下次链式任务奖励翻倍数值最新值
+	int32 getDoubleRewardThisTime = 6 ;//这次抽奖获得的奖励是否是翻倍的（注意不是抽奖到翻倍机会）
+}
+//CS_GAMEMSGID_ACTIVITY_DELETE_NOTIFY
+message CSActivityDeleteNotify {
+	int32 activityId = 1; //活动id
+}
+//CS_GAMEMSGID_ACTIVITY_CHG_NOTIFY
+message CSActivityChgNotify {
+	DBActivityOne chgActivity = 1;
+}
+//CS_GAMEMSGID_ACTIVITY_FOCUS_FACEBOOK_REQ
+message CSActivityFocusFacebookReq {
+}
+//CS_GAMEMSGID_ACTIVITY_FOCUS_FACEBOOK_RES
+message CSActivityFocusFacebookRes {
+	int32 ret = 1;
+	int64 focusFacebookTime = 2;
+}
+
+
+//CS_GAMEMSGID_GET_BROKE_GRANTS_REQ
+message CSGetBrokeGrantsReq {
+	int32 shareFacebook = 1;//是否完成分享来提高破产次数
+}
+//106201 次数限制
+//106202 未破产
+//CS_GAMEMSGID_GET_BROKE_GRANTS_RES
+message CSGetBrokeGrantsRes {
+	int32 ret = 1;
+	int64 finishBrokenGrantShareTime = 2;//完成分享加破产次数时间，完成了的话可以再领3次
+}
+
+
+
+message IDValue {
+  int64 id = 1; 
+  int64 value = 2;
+}
+
+
+//CS_GAMEMSGID_COMMON_DYNAMIC_REQ
+message CSCommonDynamicReq{
+	string cmd = 1; //消息id
+	repeated string params = 2; //参数 
+}
+
+//CS_GAMEMSGID_COMMON_DYNAMIC_RES
+message CSCommonDynamicRes{
+	int32 ret = 1;
+	string cmd = 2;
+	repeated string params = 3; //参数
+}
+
+message CSRankPlayerOne {
+	int32 rank = 1; //名次
+	int64 uid = 2;
+	string nick = 3;
+	string icon = 4;
+	int64 score = 5; //分数，在这个排行版的排行数值（筹码排行榜就是筹码）
+
+	int32 vipLevel = 8;
+	int32 gender = 9;
+}
+
+message DBRankPlayerInfo{
+	int64 uid = 1;
+	string nick = 2;
+	string icon = 3;
+	int32 level = 4;
+	int64 score = 5; //分数，在这个排行版的排行数值（筹码排行榜就是筹码）
+	int64 chip = 6;
+	int32 diamond = 7;
+	int32 gameRound = 8;//游戏局数(大局)
+	int32 winRound = 9;//胜局
+	int32 vipLevel = 10;
+	int32 gender = 11;
+}
+
+//CS_GAMEMSGID_QUERY_RANK_LIST_REQ
+message CSQueryRankListReq{
+	int32 rankId = 1; //排行榜id
+	int32 startPos = 2; //从第几名开始，服务器返回这个pos之后的n名数据
+	int32 version = 3;
+}
+//CS_GAMEMSGID_QUERY_RANK_LIST_RES
+message CSQueryRankListRes{
+	int32 ret = 1;
+	int32 rankId = 2; //排行榜id
+	repeated CSRankPlayerOne rankList = 3;
+	int32 version = 4;
+	int32 maxCount = 5;
+}
+//CS_GAMEMSGID_QUERY_RANK_SELF_REQ
+message CSQueryRankSelfReq{
+	 int32 rankId = 1; //排行榜id
+}
+//CS_GAMEMSGID_QUERY_RANK_SELF_RES
+message CSQueryRankSelfRes{
+	int32 ret = 1;
+	int32 rankId = 2; //排行榜id
+	CSRankPlayerOne selfInfo = 3;
+}
+//CS_GAMEMSGID_QUERY_RANK_DETAIL_REQ
+message CSQueryRankDetailReq{
+	 int32 rankId = 1; //排行榜id
+	 int64 uid = 2;
+}
+//CS_GAMEMSGID_QUERY_RANK_DETAIL_RES
+message CSQueryRankDetailRes{
+	int32 ret = 1;
+	int32 rankId = 2; //排行榜id
+	int64 uid = 3;
+	DBRankPlayerInfo detailInfo = 4;
+}
+
+
+//CS_GAMEMSGID_CLI_REPORT_BILL_REQ
+message CSCliReportBillReq{
+	string reportStr = 1;
+	string reportType = 2; 
+}
+//CS_GAMEMSGID_USE_ITEM_REQ
+message CSUseItemReq{
+	int64 uniqueID = 1;
+	uint32 itemID = 2;
+}
+//CS_GAMEMSGID_USE_ITEM_RES
+message CSUseItemRes{
+	int64 uniqueID = 1;
+	uint32 itemID = 2;
+	int32 ret = 3;
+}
+
+enum PrivilegeType{
+	PrivilegeType_None = 0;
+	PrivilegeType_ExpCard = 1;
+	PrivilegeType_HorseCard = 2;
+}
+
+//CS_GAMEMSGID_PRIVILEGE_DURATION_CHG
+message CSPrivilegeDurationChg{
+	repeated DBIDValue chgList = 1;
+}
+
+//CS_GAMEMSGID_ADID_REPORT_REQ
+message CSAdidReportReq{
+	string adid = 1; //adid idfa
+}
+//CS_GAMEMSGID_FIREBASE_ID_REPORT_REQ
+message CSFirebaseIdReportReq{
+	string id = 1;
+}
+//CS_GAMEMSGID_FIREBASE_SUBSCRIBE_TOPIC
+message CSFirebaseSubscribeTopic{
+	string subTopic = 1; //订阅
+	string unsubTopic = 2;//取消订阅
+}
+//CS_GAMEMSGID_BLACK_LIST_OP_REQ
+message CSBlackListOpReq{
+	int32 opType = 1; // 1,添加，2删除
+	int64 targetUid = 2; //
+}
+//CS_GAMEMSGID_BLACK_LIST_OP_RES
+message CSBlackListOpRes{
+	int32 opType = 1;
+	int32 ret = 2;
+	int64 targetUid = 3; //
+}
+//CS_GAMEMSGID_SAVE_CLIENT_DATA_REQ
+message CSSaveClientDataReq{
+	string clientData = 1;
+}
+//CS_GAMEMSGID_SAVE_CLIENT_DATA_RES
+message CSSaveClientDataRes{
+	string clientData = 1;
+}
+
+//CS_GAMEMSGID_ACHIEV_DATA_CHANGE_NOTIFY
+message CSAchievDataChangeNotify{
+	DBAchievData achievData = 1;
+}
+//CS_GAMEMSGID_QUERY_OTHER_DETAIL_REQ
+message CSQueryOtherDetailReq{
+	int64 targetUid = 1;
+}
+
+//116001 对方设置隐私，无法获取
+//CS_GAMEMSGID_QUERY_OTHER_DETAIL_RES
+message CSQueryOtherDetailRes{
+	int64 targetUid = 1;
+	int32 ret = 2;
+	int32 hideInfo = 3; //是否隐藏了信息
+	string nick = 4;
+	string icon = 5;
+	int64 chip = 6;
+	int64 diamond = 7;
+	int32 level = 8;
+	int32 vipLevel = 9;				// vip等级
+	int32 totalRound = 10;			// 总局数
+	int32 totalWin = 11;			// 总赢局
+	DBAchievData achievData = 12;	// 成就
+	int32 exp = 13;					//经验
+	int32 gender = 14;
+	string PersonalizedSignature = 15;
+}
+
+//CS_GAMEMSGID_TIP_OFF_PLAYER_REQ
+message CSTipOffPlayerReq{
+	int64 targetUid = 1;
+	string reason = 2;
+}
+//CS_GAMEMSGID_GAG_CHAT_NOTIFY
+message CSGagChatNotify{
+	int64 gagEndTime = 1; //禁言到期时间
+}
+//CS_GAMEMSGID_HIDE_MY_INFO_REQ
+message CSHideMyInfoReq{
+	int32 hide  = 1;
+}
+//CS_GAMEMSGID_HIDE_MY_INFO_RES
+message CSHideMyInfoRes{
+	int32 hide  = 1;
+}
+
+//CS_GAMEMSGID_PAY_PLAYER_PAYINFO_CHG_NOTIFY
+message CSPayPlayerPayinfoChgNotify{
+	DBRolePayData payData = 1; //最新支付数据，全量
+}
+
+
+//CS_GAMEMSGID_SET_LANGUAGE_REQ = 1189; //设置语言
+message CSSetLanguageReq{
+	string lang = 1;
+}
+//CS_GAMEMSGID_SET_LANGUAGE_RES = 1190; //设置语言
+message CSSetLanguageRes{
+	string lang = 1;
+}
+//CS_GAMEMSGID_CLIENT_HOT_PATCH_FILE_PUSH
+message CSClientHotPatchFilePush{
+	string patchFileContent = 1; //补丁文件
+	bytes zipFileContent = 2; //压缩的补丁文件
+	string md5 = 3;//服务器的md5
+}
+
+//CS_GAMEMSGID_REPORT_INVITE_ME_FBUSERID
+message CSReportInviteMeFbuserid{
+    string inviteCode = 1; //邀请我玩家的邀请码
+}
+//CS_GAMEMSGID_REPORT_INVITE_ME_FBUSERID_RES
+message CSReportInviteMeFbuseridRes{
+    string inviteCode = 1; //邀请我玩家的邀请码
+    int64 uid = 2; //对应游戏里的uid
+    int32 ret = 3; //成功还是失败
+    int64 rewardChip  = 4; //奖励
+}
+//CS_GAMEMSGID_PAY_GET_MONTH_VIP_REWARD_REQ = 1195;// 每日领取vip奖励
+message CSPayGetMonthVipRewardReq{
+}
+//119601 月卡vip到期了
+//119602 今天已经领过了
+//CS_GAMEMSGID_PAY_GET_MONTH_VIP_REWARD_RES = 1196;// 每日领取vip奖励
+message CSPayGetMonthVipRewardRes{
+	int32 ret = 1;
+	int32 chip = 2;
+	int32 diamond = 3;
+	int32 itemId = 4;
+	int32 itemCount = 5;
+}
+//位标示意义
+enum ClientBitFlagType
+{
+	ClientBitFlagType_None = 0;
+	ClientBitFlagType_NewMatchTip = 1;
+}
+//CS_GAMEMSGID_SAVE_CLIENT_BIT_FLAG_REQ
+message CSSaveClientBitFlagReq{
+	uint64 clientBitFlag = 1;
+}
+//CS_GAMEMSGID_SAVE_CLIENT_BIT_FLAG_RES
+message CSSaveClientBitFlagRes{
+	uint64 clientBitFlag = 1;
+}
+
+//CS_GAMEMSGID_INVITEE_LVUP_GET_REWARD_REQ = 1281; //邀请奖励领取请求
+message CSInviteeLvupGetRewardReq{
+	int32 rewardIndex = 1; //领取第几个奖励,1开始
+}
+//CS_GAMEMSGID_INVITEE_LVUP_GET_REWARD_RES = 1282; //回应
+message CSInviteeLvupGetRewardRes{
+	int32 rewardIndex = 1; //领取第几个奖励
+	int32 ret = 2; //结果
+}
+//CS_GAMEMSGID_INVITEE_LVUP_DATA_CHG_NOTIFY = 1283; //邀请奖励数据变化
+message CSInviteeLvupDataChgNotify{
+	DBInviteeFriendData data = 1;
+}
+
+//CS_GAMEMSGID_VIP_BUY_CARD_REQ = 1199; //购买vip卡
+message CSVipBuyCardReq{
+	int32 cardId = 1;
+}
+//120001 钻石不足
+//CS_GAMEMSGID_VIP_BUY_CARD_RES = 1200; //购买vip卡
+message CSVipBuyCardRes{
+	int32 cardId = 1;
+	int32 ret = 2;
+}
+//CS_GAMEMSGID_VIP_CARD_DATA_CHANGED = 1201; //VIPCARD数据变化
+message CSVipCardDataChanged{
+	DBVipCardData data = 1;//vip卡
+}
+//CS_GAMEMSGID_VIP_CARD_REWARD_EVERY_DAY_REQ = 1202; //每天领奖
+message CSVipCardRewardEveryDayReq{
+
+}
+//120301 没有有效卡
+//120302 今天已经领过了
+//CS_GAMEMSGID_VIP_CARD_REWARD_EVERY_DAY_RES = 1203; //每天领奖
+message CSVipCardRewardEveryDayRes{
+	int32 ret = 1;
+	int64 getChip = 2;
+}
+
+
+
+// CS_GAMEMSGID_QUERY_FRIEND_STATUS_REQ
+message CSQueryFriendStatusReq {
+	repeated int32 uids = 1;        // 目前协议list只能用int32
+}
+
+
+message CSFriendOneStatus{
+	int64 uid = 1;
+	int32 status = 2; // 0 不在线， 1 牌桌， 2 大厅
+}
+
+// CS_GAMEMSGID_QUERY_FRIEND_STATUS_RES
+message CSQueryFriendStatusRes {
+	repeated CSFriendOneStatus friends = 1;		// 
+}
+
+
+// CS_GAMEMSGID_REPORT_CHEAT_REQ
+message CSReportCheatReq {
+	int64 reporter = 1; // 举报人
+	int64 cheater = 2; // 被举报人
+}
+
+// CS_GAMEMSGID_REPORT_CHEAT_RES
+message CSReportCheatRes {
+	int32 ret = 1;
+	int64 reporter = 2; // 举报人
+	int64 cheater = 3; // 被举报人
+}
+
+//CS_GAMEMSGID_GET_TASK_REWARD_REQ
+message CSGetTaskRewardReq{
+	repeated int32 id = 1;
+}
+
+//CS_GAMEMSGID_GET_TASK_REWARD_RES
+message CSGetTaskRewardRes{
+	int32 ret = 1;
+	int32 id = 2;
+	int32 rewardTime = 3;   // 成功时填值
+}
+
+//CS_GAMEMSGID_TASK_DELETE_NOTIFY
+message CSTaskDeleteNotify {
+	repeated int32 taskIds = 1;
+}
+
+//CS_GAMEMSGID_TASK_CHG_NOTIFY
+message CSTaskChgNotify {
+	repeated DBTaskOne taskList = 1;
+}
+
+
+//CS_GAMEMSGID_QUERY_BAG_CHANGE_HISTORY_LIST_REQ
+message CSQueryBagChangeHistoryListReq{
+
+}
+//CS_GAMEMSGID_QUERY_BAG_CHANGE_HISTORY_LIST_RES
+message CSQueryBagChangeHistoryListRes{
+	repeated DBBagChangeRecord DBBagChangeRecordList = 1;//金钱钻石变化
+}
+
+enum LevelType {
+	RoleLevel = 0;
+	VipLevel = 1;   
+}
+
+enum AchievementType {
+	Achievement_None = 0;
+	Achievement_RoleLevel = 1;
+	Achievement_FriendCount = 2;
+	Achievement_TotalRound = 3;
+}
+
+
+// CS_GAMEMSGID_ADD_LEVEL_NOTIFY
+message CSAddLevelNotify {
+	LevelType levelType = 1;
+	int32 level = 2;
+	repeated LevelAward awardList = 3;
+	repeated ShopData vipShopData = 4; // vip的顺便更新vipshopdata
+}
+
+// CS_GAMEMSGID_GET_LEVEL_AWARD_REQ 
+message CSGetLevelAwardReq {
+	LevelType levelType = 1;
+	int32 level = 2;
+}
+
+// CS_GAMEMSGID_GET_LEVEL_AWARD_RES 
+message CSGetLevelAwardRes {
+	int32 ret = 1; // -1 错误  -2.已经领取过奖励， -3 找不到奖励
+	LevelType levelType = 2;
+	int32 level = 3;
+	repeated LevelAward awardList = 4;
+}
+
+//CS_GAMEMSGID_GET_ACHIEVEMENT_AWARD_REQ
+message CSGetAchievementAwardReq {
+	AchievementType type = 1;
+	int32 target = 2;
+}
+//CS_GAMEMSGID_GET_ACHIEVEMENT_AWARD_RES
+message CSGetAchievementAwardRes {
+	int32 ret = 1; // -1 错误  -2.已经领取过奖励， -3 找不到奖励
+	AchievementType type = 2;
+	int32 curTarget = 3;
+}
+
+// CS_GAMEMSGID_SYNC_LEVEL_INFO
+message CSSyncLevelInfo {
+	LevelType levelType = 1;
+	int32 level = 2;
+	int32 exp = 3;
+}
+
+enum VipPriviledge {
+	taskAddition = 0;
+	boxAddtion = 1;
+	ruinAddtion = 2;
+	ExpAddtion = 3;
+	BuyAddtion = 4;
+}
+
+// CS_GAMEMSGID_VIP_SHOP_REQ
+message CSVipShopReq {
+	int32 shopId = 1; // 物品ID
+}
+
+// CS_GAMEMSGID_VIP_SHOP_RES
+message CSVipShopRes {
+	int32 ret = 1;  // 
+	int32 shopId = 2; // 物品ID
+	int32 diamond = 3; // 消耗钻石 
+	repeated ShopData vipShopData = 4; // vip购买数据
+}
+
+//CS_GAMEMSGID_MAIL_SEND_TO_PLAYER_REQ = 1241; //发送邮件
+message CSMailSendToPlayerReq{
+	int64 targetUid = 1;
+	int64 chip = 2;
+	string title = 3;
+	string content = 4;
+	int32 shopItemId = 5;//商店物品，买了送
+}
+//CS_GAMEMSGID_MAIL_SEND_TO_PLAYER_RES = 1242; //操作邮件
+message CSMailSendToPlayerRes{
+	int32 ret = 1;
+	int64 targetUid = 2;
+	int64 chip = 3;
+	string title = 4;
+	string content = 5;
+	int32 shopItemId = 6;//商店物品，买了送
+}
+//CS_GAMEMSGID_QUERY_GAME_NOTICE_REQ = 1243; //查询公告
+message CSQueryGameNoticeReq{
+
+}
+message CSGameNoticeOne{
+	string title = 1;
+	string content = 2;
+	string startTime = 3;
+	string endTime = 4;
+	string pic = 5;
+}
+//CS_GAMEMSGID_QUERY_GAME_NOTICE_RES = 1244; //查询公告
+message CSQueryGameNoticeRes{
+	repeated CSGameNoticeOne notices = 1;   
+}
+
+//CS_GAMEMSGID_DO_RATE_REQ
+message CSDoRateReq{
+	int32 rateStar = 1;
+}
+//CS_GAMEMSGID_DO_RATE_RES
+message CSDoRateRes{
+	DBDoRateData data = 1;
+}
+
+//CS_GAMEMSGID_LINK_REWARD_REQ
+message CSLinkRewardReq {
+	int32 id = 1;
+}
+
+// -2 时间未到
+// -3 过期
+// -4 已经领过
+//CS_GAMEMSGID_LINK_REWARD_RES
+message CSLinkRewardRes {
+	int32 ret = 1;
+	int32 id = 2; // 奖励id
+}
+
+
+// CS_GAMEMSGID_ROLEBASE_CHG_REQ
+message CSRolebaseChgReq {
+	string nick = 1;
+	int32 gender = 2;
+}
+// CS_GAMEMSGID_ROLEBASE_CHG_RES
+message CSRolebaseChgRes {
+	int32 ret = 1;
+	string nick = 2;
+	int32 gender = 3;
+}
+
+//CS_GAMEMSGID_SET_PERSONALIZED_SIGNATURE_REQ = 1381;
+message CSSetPersonalizedSignatureReq{
+	string sign = 1;
+}
+//CS_GAMEMSGID_SET_PERSONALIZED_SIGNATURE_RES= 1382;
+message CSSetPersonalizedSignatureRes{
+	string sign = 1;
+	int32 ret = 2;
+}
+
+enum CSPropIDType
+{
+	CS_PROP_ID_NONE = 0;
+	CS_PROP_ID_HP = 1;
+	CS_PROP_ID_HP_MAX = 2;
+	CS_PROP_ID_SPEED = 3;
+	CS_PROP_ID_ATK = 4;
+	CS_PROP_ID_DEF = 5;
+	CS_PROP_ID_CRI = 6;
+	CS_PROP_ID_CRI_POWER = 7;
+	CS_PROP_ID_UNCRI = 8;
+	CS_PROP_ID_BLOCK = 9;
+	CS_PROP_ID_BLOCK_POWER = 10;
+	CS_PROP_ID_UNBLOCK = 11;
+	CS_PROP_ID_CONTROL = 12;
+	CS_PROP_ID_UNCONTROL = 13;
+	CS_PROP_ID_DMG_RATE = 14; //伤害率
+	CS_PROP_ID_UNDMG_RATE = 15; 
+	CS_PROP_ID_ABSOLUTE_DMG_RATE = 16; //绝对伤害率
+	CS_PROP_ID_STEAL = 17; //吸血
+	CS_PROP_ID_RAGE = 18; //怒气
+
+	CS_PROP_ID_MAX = 20;
+}
+
+enum CSBattleType
+{
+	CS_BATTLETYPE_NONE = 0;
+	CS_BATTLETYPE_MAINLAND = 1;
+	CS_BATTLETYPE_ARENA = 2;
+}
+
+enum CSBattleResultType
+{
+	CS_BATTLERESULTTYPE_NONE = 0;
+	CS_BATTLERESULTTYPE_SUCCESS = 1;
+	CS_BATTLERESULTTYPE_FAILED = 2;
+}
+
+message CSBattleRoleInfo
+{
+	DBRoleBase roleBase = 1;
+	uint32 gameServerId = 2;
+}
+
+message CSHeroInfo
+{
+	int32 descId = 1;
+	int32 level = 2;
+	int32 star = 3;
+	int32 quality = 4;
+	int32 exp = 5;
+	int32 smallSpellLevel = 6;
+	int32 bigSpellLevel = 7;
+}
+
+message CSBattleSideInfo
+{
+	repeated  CSHeroInfo list = 1;
+	DBHeroLineupData lineup = 2;
+}
+
+message CSBattleInfoAll
+{
+	CSBattleType type = 1;
+	uint32 battleId = 2;
+	int32 mainlandId = 3;
+	int32 mainlandLevel = 4; // 0表示都配置
+	CSBattleRoleInfo RoleA = 5;
+	CSBattleRoleInfo RoleB = 6;
+	CSBattleSideInfo HerosA = 7;
+	CSBattleSideInfo HerosB = 8;
+}
+
+//CS_GAMEMSGID_BATTLE_MATCH_BEGIN_REQ = 1501; // 开始匹配请求
+message CSBattleMatchBeginReq{
+	int32 heroDescId = 1;
+}
+enum PlayerMatchStatus{
+	PBS_None = 0;
+	PBS_Matching = 1;
+	PBS_CreatingRoom = 2;
+	PBS_EnteringRoom = 3;
+	PBS_Battle = 4;
+}
+//CS_GAMEMSGID_BATTLE_MATCH_BEGIN_RES = 1502; // 开始匹配回应
+message CSBattleMatchBeginRes{
+	int32 heroDescId = 1;
+	int32 ret = 2;
+	PlayerMatchStatus status = 3; //状态
+}
+//CS_GAMEMSGID_BATTLE_MATCH_CANCEL_REQ = 1503; // 取消匹配请求
+message CSBattleMatchCancelReq{
+
+}
+enum BattleMatchCancelReason{
+	PlayerCancel = 0;
+}
+//CS_GAMEMSGID_BATTLE_MATCH_CANCEL_RES = 1504; // 取消匹配回应（服务器取消也发这个）
+message CSBattleMatchCancelRes{
+	BattleMatchCancelReason reason = 1;
+	int32 ret = 2;
+}
+//CS_GAMEMSGID_BATTLE_ENTER_NOTIFY = 1505; // 通知客户端进入房间
+message CSBattleEnterNotify{
+	uint32 battleId = 1;
+	int64 ticket = 2;
+	string serverUrl = 3; //战斗服务器连接的地址，暂时不用
+
+}
+
+//CS_GAMEMSGID_BATTLE_ENTER_MAINLAND_REQ
+message CSBattleEnterMainlandReq{
+	int32 mainlandId = 1;
+	CSBattleSideInfo Heros = 2;
+	uint32 battleId = 3; //world生成
+}
+//CS_GAMEMSGID_BATTLE_ENTER_MAINLAND_RES
+message CSBattleEnterMainlandRes{
+	int32 ret = 1;
+}
+
+//CS_GAMEMSGID_BATTLE_INIT_NOTIFY = 1509;//服务器通知客户端战斗初始化数据
+message CSBattleInitNotify{
+	CSBattleInfoAll data = 1;
+}
+
+//CS_GAMEMSGID_BATTLE_CANCEL_REQ = 1510;//客户端请求离开战斗（服务器立即销毁战斗，方便反复测试）
+message CSBattleCancelReq{
+	uint32 battleId = 1;
+}
+//CS_GAMEMSGID_BATTLE_CANCEL_RES = 1510;//客户端请求离开战斗（服务器立即销毁战斗，方便反复测试）
+message CSBattleCancelRes{
+	uint32 battleId = 1;
+}
